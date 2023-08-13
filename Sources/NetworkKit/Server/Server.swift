@@ -32,16 +32,16 @@ public extension Server {
 //    var logger: ServerLogger? { NKServerLogger() }
 
     func perform<T: Decodable>(_ request: HttpRequest) async throws -> T {
-        let data: Data = try await send(request, context: .init())
+        let data: Data = try await send(request)
         return try decoder.decode(T.self, from: data)
     }
 
     func perform(_ request: HttpRequest) async throws {
-        try await send(request, context: .init())
+        try await send(request)
     }
     
     @discardableResult
-    private func send(_ request: HttpRequest, context: HttpRequestContext) async throws -> Data {
+    private func send(_ request: HttpRequest, context: HttpRequestContext = .init()) async throws -> Data {
         let performer: HttpRequestPerformer = .init(server: self)
         let handler: HttpRequestResultHandler = .init()
         let (data, response) = try await performer.perform(request)

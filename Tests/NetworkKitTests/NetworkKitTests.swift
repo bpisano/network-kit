@@ -38,4 +38,23 @@ final class NetworkKitTests: XCTestCase {
         let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
         try await server.perform(.getPrivate)
     }
+
+    func testInvalidAccessToken() async throws {
+        let accessTokenProvider: TestAccessTokenProvider = .init()
+        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
+        await AsyncAssertThrowsError(try await server.perform(.getPrivate), handleError: { error in
+            guard let error = error as? ResponseError else {
+                XCTFail("Invalid error type.")
+                return
+            }
+            XCTAssertEqual(error, ResponseError.forbidden)
+        })
+    }
+
+    func testRefreshAccessToken() async throws {
+        let accessTokenProvider: TestAccessTokenProvider = .init()
+        accessTokenProvider.onRefreshAccessToken = { TestAccessTokenProvider.validAccessToken }
+        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
+        try await server.perform(.getPrivate)
+    }
 }

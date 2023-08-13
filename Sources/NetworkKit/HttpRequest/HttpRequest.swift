@@ -46,7 +46,7 @@ public extension HttpRequest {
     var cachePolicy: URLRequest.CachePolicy { .reloadIgnoringLocalAndRemoteCacheData }
 
     func failureBehavior(for statusCode: Int) -> FailureBehavior {
-        guard statusCode == 401 else { return .default }
+        guard statusCode == 401 || statusCode == 403 else { return .default }
         return .refreshAccessToken
     }
     

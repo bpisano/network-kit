@@ -14,4 +14,9 @@ extension Data {
               let prettyPrintedString = String(data: data, encoding: String.Encoding.utf8) else { return nil }
         return prettyPrintedString
     }
+
+    mutating func append(text: String) {
+        guard let data = text.data(using: .utf8) else { return }
+        append(data)
+    }
 }

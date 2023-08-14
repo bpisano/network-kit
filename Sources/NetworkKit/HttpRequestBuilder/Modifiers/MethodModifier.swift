@@ -10,7 +10,7 @@ import Foundation
 struct MethodModifier: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: HttpRequest,
+        httpRequest: Request,
         server: Server
     ) throws {
         request.httpMethod = httpRequest.method.rawValue.capitalized

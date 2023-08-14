@@ -8,8 +8,15 @@ import {
   NotFoundException,
   Post,
   Query,
-  UseGuards
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import { AccessTokenGuard } from '../guards/accessToken.guard';
 import { User } from '../models/user';
 
@@ -52,5 +59,18 @@ export class AppController {
   @UseGuards(AccessTokenGuard)
   public getPrivate(): User {
     return User.mock();
+  }
+
+  @Post('image')
+  @UseInterceptors(FileInterceptor('image'))
+  public uploadImage(@UploadedFile() imageFile: Express.Multer.File, @Res() res: Response): void {
+    const imagePath: string = path.join(__dirname, '..', '..', 'public', 'images', imageFile.filename);
+    fs.writeFileSync(imagePath, imageFile.buffer);
+
+    res.setHeader('Content-Type', imageFile.mimetype);
+
+    const filePath: string = path.join(__dirname, '..', 'path-to-uploaded-files', imageFile.filename);
+    const fileStream: fs.ReadStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
   }
 }

@@ -10,7 +10,7 @@ import Foundation
 struct QueryParametersModifier: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: HttpRequest,
+        httpRequest: Request,
         server: Server
     ) throws {
         guard let url = urlComponents(for: httpRequest, server: server).url else {
@@ -19,7 +19,7 @@ struct QueryParametersModifier: RequestModifier {
         request.url = url
     }
     
-    private func urlComponents(for httpRequest: HttpRequest, server: Server) -> URLComponents {
+    private func urlComponents(for httpRequest: Request, server: Server) -> URLComponents {
         var components: URLComponents = URLComponents()
         components.scheme = server.scheme
         components.host = server.host

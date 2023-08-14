@@ -14,7 +14,7 @@ struct HttpRequestPerformer {
         self.server = server
     }
     
-    func perform(_ request: HttpRequest) async throws -> (data: Data, response: HTTPURLResponse) {
+    func perform(_ request: Request) async throws -> (data: Data, response: HTTPURLResponse) {
         let urlRequest: URLRequest = try request.urlRequest(server: server)
         let (data, response) = try await URLSession.shared.data(for: urlRequest)
         guard let httpResponse = response as? HTTPURLResponse else { throw ResponseError.internalServerError }

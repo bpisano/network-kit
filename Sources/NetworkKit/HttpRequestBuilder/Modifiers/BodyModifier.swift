@@ -10,11 +10,18 @@ import Foundation
 struct BodyModifier: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: HttpRequest,
+        httpRequest: Request,
         server: Server
     ) throws {
-        guard let body = httpRequest.body else { return }
-        request.httpBody = try httpRequest.jsonEncoder.encode(body)
+        switch httpRequest {
+        case let httpRequest as HttpRequest:
+            guard let body = httpRequest.body else { return }
+            request.httpBody = try httpRequest.jsonEncoder.encode(body)
+        case let httpDataRequest as HttpDataRequest:
+            request.httpBody = httpDataRequest.bodyData
+        default:
+            break
+        }
     }
 }
 

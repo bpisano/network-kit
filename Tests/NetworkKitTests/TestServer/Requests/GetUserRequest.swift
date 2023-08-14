@@ -19,7 +19,7 @@ struct GetUserRequest: HttpRequest {
     }
 }
 
-extension HttpRequest where Self == GetUserRequest {
+extension Request where Self == GetUserRequest {
     static func getUser(withId id: String) -> Self {
         .init(id: id)
     }

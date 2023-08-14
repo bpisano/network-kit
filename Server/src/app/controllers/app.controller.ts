@@ -33,7 +33,6 @@ export class AppController {
     if (!user) {
       throw new BadRequestException('Invalid body format');
     }
-    console.log(user);
     return User.mock({ id: user.id, username: user.username });
   }
 
@@ -52,7 +51,6 @@ export class AppController {
   @Get('private')
   @UseGuards(AccessTokenGuard)
   public getPrivate(): User {
-    console.log('Test');
     return User.mock();
   }
 }

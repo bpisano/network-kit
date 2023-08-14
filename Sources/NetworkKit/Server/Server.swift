@@ -56,7 +56,7 @@ public extension Server {
                 try await accessTokenProvider.refreshAccessToken()
                 return try await send(request, context: .init(shouldRetryOnFail: false))
             }
-            throw ServerError.refreshAccessTokenFailed
+            throw ResponseError(rawValue: response.statusCode) ?? ServerError.refreshAccessTokenFailed
         }
     }
     // Perform a request and decode its result to a given return type.

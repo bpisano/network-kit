@@ -26,7 +26,6 @@ export class AccessTokenGuard implements CanActivate {
   }
 
   private getAccessTokenFromRequest(request: Request): Optional<string> {
-    console.log(request.headers);
     const authorizationHeader: Optional<string> = request.headers['authorization'];
     if (!authorizationHeader) {
       return undefined;

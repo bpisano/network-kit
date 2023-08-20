@@ -16,7 +16,7 @@ extension Data {
     }
 
     mutating func append(text: String) {
-        guard let data = text.data(using: .utf8) else { return }
+        guard let data = text.data(using: .utf8, allowLossyConversion: true) else { return }
         append(data)
     }
 }

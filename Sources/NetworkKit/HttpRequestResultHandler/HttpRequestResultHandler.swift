@@ -8,7 +8,7 @@
 import Foundation
 
 struct HttpRequestResultHandler {
-    func handle(response: HTTPURLResponse, data: Data, for request: Request) -> ResultBehavior {
+    func handle(response: HTTPURLResponse, data: Data, for request: some HttpRequest) -> ResultBehavior {
         let hasRequestSucceded: Bool = request.successStatusCodes.contains(response.statusCode)
         if hasRequestSucceded {
             return .decodeData(data)

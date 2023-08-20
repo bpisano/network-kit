@@ -17,7 +17,7 @@ struct GetErrorRequest: HttpRequest {
     }
 }
 
-extension Request where Self == GetErrorRequest {
+extension HttpRequest where Self == GetErrorRequest {
     static var getError: Self {
         .init()
     }

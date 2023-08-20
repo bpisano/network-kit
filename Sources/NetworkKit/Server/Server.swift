@@ -31,17 +31,21 @@ public extension Server {
     var decoder: JSONDecoder { .datefns }
 //    var logger: ServerLogger? { NKServerLogger() }
 
-    func perform<T: Decodable>(_ request: Request) async throws -> T {
+    func perform<T: Decodable>(_ request: some HttpRequest) async throws -> T {
         let data: Data = try await send(request)
         return try decoder.decode(T.self, from: data)
     }
 
-    func perform(_ request: Request) async throws {
+    func performRaw(_ request: some HttpRequest) async throws -> Data {
+        try await send(request)
+    }
+
+    func perform(_ request: some HttpRequest) async throws {
         try await send(request)
     }
     
     @discardableResult
-    private func send(_ request: Request, context: HttpRequestContext = .init()) async throws -> Data {
+    private func send(_ request: some HttpRequest, context: HttpRequestContext = .init()) async throws -> Data {
         let performer: HttpRequestPerformer = .init(server: self)
         let handler: HttpRequestResultHandler = .init()
         let (data, response) = try await performer.perform(request)

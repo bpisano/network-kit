@@ -13,7 +13,7 @@ struct GetPrivateRequest: HttpRequest {
     let accessTokenType: AccessTokenType = .bearer
 }
 
-extension Request where Self == GetPrivateRequest {
+extension HttpRequest where Self == GetPrivateRequest {
     static var getPrivate: Self {
         .init()
     }

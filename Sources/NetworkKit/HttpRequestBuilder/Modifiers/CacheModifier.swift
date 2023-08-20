@@ -10,7 +10,7 @@ import Foundation
 struct CacheModifier: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: Request,
+        httpRequest: some HttpRequest,
         server: Server
     ) throws {
         request.cachePolicy = httpRequest.cachePolicy

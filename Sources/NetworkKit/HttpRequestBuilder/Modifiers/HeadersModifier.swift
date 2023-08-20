@@ -10,28 +10,22 @@ import Foundation
 struct HeadersModifiers: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: Request,
+        httpRequest: some HttpRequest,
         server: Server
     ) throws {
         addRequestHeaders(request: &request, httpRequest: httpRequest)
-        addContentTypeHeader(request: &request, httpRequest: httpRequest)
         addAuthorizationHeader(request: &request, httpRequest: httpRequest, server: server)
     }
 
-    private func addRequestHeaders(request: inout URLRequest, httpRequest: Request) {
-        httpRequest.headers?
+    private func addRequestHeaders(request: inout URLRequest, httpRequest: some HttpRequest) {
+        httpRequest.makeHeaders()
             .dictionaryHeaders(dateFormatter: httpRequest.dateFormatter)
             .forEach { key, value in
                 request.addValue(value, forHTTPHeaderField: key)
             }
     }
 
-    private func addContentTypeHeader(request: inout URLRequest, httpRequest: Request) {
-        guard httpRequest.method != .get else { return }
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-    }
-
-    private func addAuthorizationHeader(request: inout URLRequest, httpRequest: Request, server: Server) {
+    private func addAuthorizationHeader(request: inout URLRequest, httpRequest: some HttpRequest, server: Server) {
         guard httpRequest.accessTokenType != .none else { return }
         guard let accessToken = server.accessTokenProvider?.accessToken else { return }
         guard let headerValue = httpRequest.accessTokenType.header(withToken: accessToken) else { return }

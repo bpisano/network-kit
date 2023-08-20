@@ -8,7 +8,7 @@
 import XCTest
 import NetworkKit
 
-final class RequestTests: XCTestCase {
+final class HttpRequestTests: XCTestCase {
     func testSuccessfullRequest() async throws {
         let server: TestServer = .init()
         let users: [User] = try await server.perform(.getUsers)

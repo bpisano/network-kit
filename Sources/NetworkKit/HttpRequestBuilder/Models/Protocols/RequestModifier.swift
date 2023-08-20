@@ -10,7 +10,7 @@ import Foundation
 protocol RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: Request,
+        httpRequest: some HttpRequest,
         server: Server
     ) throws
 }

@@ -12,7 +12,7 @@ struct GetUsersRequest: HttpRequest {
     let path: String = "/users"
 }
 
-extension Request where Self == GetUsersRequest {
+extension HttpRequest where Self == GetUsersRequest {
     static var getUsers: Self {
         .init()
     }

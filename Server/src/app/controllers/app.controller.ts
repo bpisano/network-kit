@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpException,
+  InternalServerErrorException,
   NotFoundException,
   Post,
   Query,
@@ -15,8 +16,8 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AccessTokenGuard } from '../guards/accessToken.guard';
 import { User } from '../models/user';
 
@@ -40,6 +41,7 @@ export class AppController {
     if (!user) {
       throw new BadRequestException('Invalid body format');
     }
+    console.log(user);
     return User.mock({ id: user.id, username: user.username });
   }
 
@@ -64,12 +66,21 @@ export class AppController {
   @Post('image')
   @UseInterceptors(FileInterceptor('image'))
   public uploadImage(@UploadedFile() imageFile: Express.Multer.File, @Res() res: Response): void {
-    const imagePath: string = path.join(__dirname, '..', '..', 'public', 'images', imageFile.filename);
+    if (!imageFile) {
+      throw new InternalServerErrorException('Invalid body format');
+    }
+
+    const imagesDir: string = path.join(__dirname, '..', '..', 'public', 'images');
+    if (!fs.existsSync(imagesDir)) {
+      fs.mkdirSync(imagesDir, { recursive: true });
+    }
+
+    const imagePath: string = path.join(__dirname, '..', '..', 'public', 'images', imageFile.originalname);
     fs.writeFileSync(imagePath, imageFile.buffer);
 
     res.setHeader('Content-Type', imageFile.mimetype);
 
-    const filePath: string = path.join(__dirname, '..', 'path-to-uploaded-files', imageFile.filename);
+    const filePath: string = path.join(__dirname, '..', '..', 'public', 'images', imageFile.originalname);
     const fileStream: fs.ReadStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
   }

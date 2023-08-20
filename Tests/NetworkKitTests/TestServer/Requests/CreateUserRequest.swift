@@ -11,14 +11,19 @@ import NetworkKit
 struct CreateUserRequest: HttpRequest {
     let path: String = "/user"
     let method: HttpMethod = .post
-    let body: Encodable?
+
+    private let user: User
 
     init(user: User) {
-        body = user
+        self.user = user
+    }
+
+    var body: some HttpBody {
+        Encode(user)
     }
 }
 
-extension Request where Self == CreateUserRequest {
+extension HttpRequest where Self == CreateUserRequest {
     static func createUser(_ user: User) -> Self {
         .init(user: user)
     }

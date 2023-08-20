@@ -17,6 +17,9 @@ let package = Package(
             dependencies: []),
         .testTarget(
             name: "NetworkKitTests",
-            dependencies: ["NetworkKit"]),
+            dependencies: ["NetworkKit"],
+            resources: [
+                .process("Resources/test_image.jpeg")
+            ]),
     ]
 )

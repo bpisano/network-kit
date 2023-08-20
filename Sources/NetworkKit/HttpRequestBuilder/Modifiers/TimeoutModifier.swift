@@ -10,7 +10,7 @@ import Foundation
 struct TimeoutModifier: RequestModifier {
     func build(
         request: inout URLRequest,
-        httpRequest: Request,
+        httpRequest: some HttpRequest,
         server: Server
     ) throws {
         request.timeoutInterval = httpRequest.timeout

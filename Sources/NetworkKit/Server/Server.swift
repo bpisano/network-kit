@@ -31,24 +31,38 @@ public extension Server {
     var decoder: JSONDecoder { .datefns }
 //    var logger: ServerLogger? { NKServerLogger() }
 
-    func perform<T: Decodable>(_ request: some HttpRequest) async throws -> T {
-        let data: Data = try await send(request)
+    func perform<T: Decodable>(
+        _ request: some HttpRequest,
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws -> T {
+        let data: Data = try await send(request, onProgress: onProgress)
         return try decoder.decode(T.self, from: data)
     }
 
-    func performRaw(_ request: some HttpRequest) async throws -> Data {
-        try await send(request)
+    func performRaw(
+        _ request: some HttpRequest,
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws -> Data {
+        try await send(request, onProgress: onProgress)
     }
 
-    func perform(_ request: some HttpRequest) async throws {
-        try await send(request)
+    func perform(
+        _ request: some HttpRequest,
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws {
+        try await send(request, onProgress: onProgress)
     }
     
     @discardableResult
-    private func send(_ request: some HttpRequest, context: HttpRequestContext = .init()) async throws -> Data {
+    private func send(
+        _ request: some HttpRequest,
+        context: HttpRequestContext = .init(),
+        onProgress: ((Double) -> Void)? = nil
+    ) async throws -> Data {
+        let onProgress: (Double) -> Void = onProgress ?? { _ in }
         let performer: HttpRequestPerformer = .init(server: self)
         let handler: HttpRequestResultHandler = .init()
-        let (data, response) = try await performer.perform(request)
+        let (data, response) = try await performer.perform(request, onProgress: onProgress)
         let behavior: ResultBehavior = handler.handle(response: response, data: data, for: request)
         switch behavior {
         case let .throwError(error):

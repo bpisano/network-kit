@@ -41,7 +41,6 @@ export class AppController {
     if (!user) {
       throw new BadRequestException('Invalid body format');
     }
-    console.log(user);
     return User.mock({ id: user.id, username: user.username });
   }
 
@@ -79,6 +78,9 @@ export class AppController {
     fs.writeFileSync(imagePath, imageFile.buffer);
 
     res.setHeader('Content-Type', imageFile.mimetype);
+
+    const contentLength = fs.statSync(imagePath).size;
+    res.setHeader('Content-Length', contentLength.toString());
 
     const filePath: string = path.join(__dirname, '..', '..', 'public', 'images', imageFile.originalname);
     const fileStream: fs.ReadStream = fs.createReadStream(filePath);

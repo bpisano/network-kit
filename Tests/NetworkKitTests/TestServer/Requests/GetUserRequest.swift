@@ -10,12 +10,20 @@ import NetworkKit
 
 struct GetUserRequest: HttpRequest {
     let path: String = "/user"
-    let queryParameters: HttpQueryParameters?
+
+    private let id: String
 
     init(id: String) {
-        queryParameters = [
-            "id": id
-        ]
+        self.id = id
+    }
+
+    var headers: HttpHeaders? {
+        HttpHeader("Test", value: "Hello")
+        HttpHeader("Test", value: "Hello")
+    }
+
+    var queryParameters: HttpQueryParameters? {
+        HttpQueryParameter("id", value: id)
     }
 }
 

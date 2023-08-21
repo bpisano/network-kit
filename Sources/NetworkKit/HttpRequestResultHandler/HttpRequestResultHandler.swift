@@ -14,17 +14,17 @@ struct HttpRequestResultHandler {
             return .decodeData(data)
         }
         
-        let failureBehavior: FailureBehavior = request.failureBehavior(for: response.statusCode)
+        let failureBehavior: RequestFailureBehavior = request.failureBehavior(for: response.statusCode)
         switch failureBehavior {
         case .refreshAccessToken:
             return .refreshAccessToken
         case let .throwError(error):
             return .throwError(error)
         case .default:
-            if let error = ResponseError(rawValue: response.statusCode) {
+            if let error = ResponseCode(rawValue: response.statusCode) {
                 return .throwError(error)
             }
-            return .throwError(ResponseError.unknown)
+            return .throwError(ResponseCode.unknown)
         }
     }
 }

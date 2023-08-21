@@ -21,7 +21,7 @@ public protocol HttpRequest {
     @HttpHeadersBuilder
     var headers: HttpHeaders? { get }
     /// The query parameters of the request. Default to `nil`.
-    @HttpQueryParamertersBuilder
+    @HttpQueryParametersBuilder
     var queryParameters: HttpQueryParameters? { get }
     /// The body of the request.
     var body: Body { get }
@@ -44,7 +44,7 @@ public protocol HttpRequest {
     func urlRequest(server: Server) throws -> URLRequest
     func makeHeaders() -> HttpHeaders
     func encodeBody() throws -> Data?
-    func failureBehavior(for statusCode: Int) -> FailureBehavior
+    func failureBehavior(for statusCode: Int) -> RequestFailureBehavior
 }
 
 public extension HttpRequest {
@@ -74,7 +74,7 @@ public extension HttpRequest {
             .buildRequest(from: self, server: server)
     }
 
-    func failureBehavior(for statusCode: Int) -> FailureBehavior {
+    func failureBehavior(for statusCode: Int) -> RequestFailureBehavior {
         guard statusCode == 401 || statusCode == 403 else { return .default }
         return .refreshAccessToken
     }

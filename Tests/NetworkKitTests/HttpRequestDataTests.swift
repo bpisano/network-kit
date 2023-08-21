@@ -29,8 +29,8 @@ final class HttpRequestDataTests: XCTestCase {
         let server: TestServer = .init()
         var currentProgress: Double = 0
         let receivedData: Data = try await server.performRaw(.postImage(data: imageData), onProgress: { progress in
-            XCTAssertGreaterThanOrEqual(progress, currentProgress)
-            currentProgress = progress
+            XCTAssertGreaterThanOrEqual(progress.fractionCompleted, currentProgress)
+            currentProgress = progress.fractionCompleted
         })
         XCTAssertEqual(currentProgress, 1)
         XCTAssertEqual(receivedData, imageData)

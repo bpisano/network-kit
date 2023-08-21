@@ -11,7 +11,7 @@ import NetworkKit
 struct GetErrorRequest: HttpRequest {
     let path: String = "/error"
 
-    func failureBehavior(for statusCode: Int) -> FailureBehavior {
+    func failureBehavior(for statusCode: Int) -> RequestFailureBehavior {
         guard let error = RequestError(rawValue: statusCode) else { return .default }
         return .throwError(error)
     }

@@ -33,7 +33,7 @@ public extension Server {
 
     func perform<T: Decodable>(
         _ request: some HttpRequest,
-        onProgress: ((Double) -> Void)? = nil
+        onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> T {
         let data: Data = try await send(request, onProgress: onProgress)
         return try decoder.decode(T.self, from: data)
@@ -41,14 +41,14 @@ public extension Server {
 
     func performRaw(
         _ request: some HttpRequest,
-        onProgress: ((Double) -> Void)? = nil
+        onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> Data {
         try await send(request, onProgress: onProgress)
     }
 
     func perform(
         _ request: some HttpRequest,
-        onProgress: ((Double) -> Void)? = nil
+        onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws {
         try await send(request, onProgress: onProgress)
     }
@@ -57,9 +57,8 @@ public extension Server {
     private func send(
         _ request: some HttpRequest,
         context: HttpRequestContext = .init(),
-        onProgress: ((Double) -> Void)? = nil
+        onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> Data {
-        let onProgress: (Double) -> Void = onProgress ?? { _ in }
         let performer: HttpRequestPerformer = .init(server: self)
         let handler: HttpRequestResultHandler = .init()
         let (data, response) = try await performer.perform(request, onProgress: onProgress)
@@ -74,104 +73,7 @@ public extension Server {
                 try await accessTokenProvider.refreshAccessToken()
                 return try await send(request, context: .init(shouldRetryOnFail: false))
             }
-            throw ResponseError(rawValue: response.statusCode) ?? ServerError.refreshAccessTokenFailed
+            throw ResponseCode(rawValue: response.statusCode) ?? ServerError.refreshAccessTokenFailed
         }
     }
-    // Perform a request and decode its result to a given return type.
-    /// - Parameter request: Any object that conforms to the ``HttpRequest`` protocol.
-    /// - Returns: The result of the request.
-//    func perform<T: Decodable>(request: HttpRequest) async throws -> T {
-//        if let accessTokenProvider, request.accessTokenType != .none {
-//            return try await execute(request: request, accessTokenProvider: accessTokenProvider)
-//        }
-//        return try await execute(request: request)
-//    }
-//
-//    /// Perform a request.
-//    /// - Parameter request: Any object that conforms to the ``HttpRequest`` protocol.
-//    func perform(request: HttpRequest) async throws {
-//        if let accessTokenProvider, request.accessTokenType != .none {
-//            let _: Empty = try await execute(request: request, accessTokenProvider: accessTokenProvider)
-//            return
-//        }
-//        let _: Empty = try await execute(request: request)
-//    }
-//
-//    private func execute<T: Decodable>(request: HttpRequest) async throws -> T {
-//        if let dataRequest = request.dataRequest(server: self, additionalHeaders: nil) {
-//            return try await send(dataRequest: dataRequest, for: request)
-//        }
-//        throw ServerError.invalidRequest(request)
-//    }
-//
-//    private func execute<T: Decodable>(
-//        request: some HttpRequest,
-//        accessTokenProvider: AccessTokenProvider,
-//        retryIfNeeded: Bool = true
-//    ) async throws -> T {
-//        let accessToken: String = accessTokenProvider.accessToken ?? ""
-//        let accessTokenHeaderValue: String = request.accessTokenType.header(withToken: accessToken)
-//        let accessTokenHeader: HTTPHeader = HTTPHeader(name: "authorization", value: accessTokenHeaderValue)
-//        let additionalHeaders: HTTPHeaders = HTTPHeaders(arrayLiteral: accessTokenHeader)
-//        if let dataRequest = request.dataRequest(server: self, additionalHeaders: additionalHeaders) {
-//            return try await send(
-//                dataRequest: dataRequest,
-//                for: request,
-//                accessTokenProvider: accessTokenProvider,
-//                retryIfNeeded: retryIfNeeded
-//            )
-//        }
-//        throw ServerError.invalidRequest(request)
-//    }
-//
-//    private func send<T: Decodable>(
-//        request: HttpRequest,
-//        with accessTokenProvider: AccessTokenProvider? = nil,
-//        retryIfNeeded: Bool = true
-//    ) async throws -> T {
-//        let urlRequest: URLRequest = try request.urlRequest(server: self)
-//        let (data, response) = try await URLSession.shared.data(for: urlRequest)
-//        if let response = response as? HTTPURLResponse {
-//
-//        }
-//
-//
-//
-//        if let value = response.value {
-//            return value
-//        }
-//
-//        let canRefreshAccessToken: Bool = retryIfNeeded && request.refreshTokenOnFail
-//        if let accessTokenProvider, let responseCode = response.error?.responseCode,
-//           responseCode == request.refreshTokenStatusCode && canRefreshAccessToken
-//        {
-//            try await accessTokenProvider.refreshAccessToken()
-//            return try await execute(
-//                request: request,
-//                accessTokenProvider: accessTokenProvider,
-//                retryIfNeeded: false
-//            )
-//        }
-//
-//        if let mappedError = getError(fromRequest: request, responseError: response.error) {
-//            throw mappedError
-//        } else {
-//            throw ServerError.unknown
-//        }
-//    }
-//
-//    private func handleError(with response: HTTPURLResponse)
-//
-//    private func getError(fromRequest request: HttpRequest, responseError: AFError?) -> Error? {
-//        guard let statusCode = responseError?.responseCode else { return responseError }
-//        if let mappedError = request.error(forStatusCode: statusCode) {
-//            return mappedError
-//        } else if let requestError = RequestError(rawValue: statusCode) {
-//            return requestError
-//        } else {
-//            return responseError
-//        }
-//    }
 }
-
-

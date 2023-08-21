@@ -7,6 +7,12 @@
 
 import Foundation
 
+extension Dictionary: HttpBody where Key == String {
+    public func encode(using jsonEncoder: JSONEncoder) throws -> Data {
+        try JSONSerialization.data(withJSONObject: self)
+    }
+}
+
 extension Dictionary: HttpQueryParameters where Key == String {
     func queryItems(dateFormatter: DateFormatter) -> [URLQueryItem] {
         map({ URLQueryItem(name: $0, value: "\($1)") })

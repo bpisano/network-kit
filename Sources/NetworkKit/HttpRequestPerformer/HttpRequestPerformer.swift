@@ -16,18 +16,21 @@ struct HttpRequestPerformer {
 
     func perform(
         _ request: some HttpRequest,
-        onProgress: @escaping (Double) -> Void
+        onProgress: ((Progress) -> Void)? = nil
     ) async throws -> (data: Data, response: HTTPURLResponse) {
         let urlRequest: URLRequest = try request.urlRequest(server: server)
         let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
         let length: Int = Int(response.expectedContentLength)
         var data: Data = .init(capacity: length)
+        var receivedBytesCount: Int64 = 0
+        let progress = Progress(totalUnitCount: Int64(length))
         for try await byte in bytes {
             data.append(byte)
-            let progress: Double = abs(Double(data.count) / Double(length))
-            onProgress(progress)
+            receivedBytesCount += 1
+            progress.completedUnitCount = receivedBytesCount
+            onProgress?(progress)
         }
-        guard let httpResponse = response as? HTTPURLResponse else { throw ResponseError.internalServerError }
+        guard let httpResponse = response as? HTTPURLResponse else { throw ResponseCode.internalServerError }
         return (data, httpResponse)
     }
 }

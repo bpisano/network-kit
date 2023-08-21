@@ -10,7 +10,7 @@ import Foundation
 public struct Raw: HttpBody {
     private let data: Data
 
-    public init(data: Data) {
+    public init(_ data: Data) {
         self.data = data
     }
 

@@ -8,7 +8,7 @@
 import Foundation
 
 @resultBuilder
-public struct HttpQueryParamertersBuilder {
+public struct HttpQueryParametersBuilder {
     public static func buildBlock(_ components: HttpQueryParameter...) -> HttpQueryParameters {
         components.reduce(into: [String: String]()) { queryParameters, queryParameter in
             queryParameters[queryParameter.key] = queryParameter.value

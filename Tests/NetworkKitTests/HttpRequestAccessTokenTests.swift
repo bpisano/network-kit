@@ -19,11 +19,11 @@ final class HttpRequestAcessTokenTests: XCTestCase {
         let accessTokenProvider: TestAccessTokenProvider = .init()
         let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
         await AsyncAssertThrowsError(try await server.perform(.getPrivate), handleError: { error in
-            guard let error = error as? ResponseError else {
+            guard let error = error as? ResponseCode else {
                 XCTFail("Invalid error type.")
                 return
             }
-            XCTAssertEqual(error, ResponseError.forbidden)
+            XCTAssertEqual(error, ResponseCode.forbidden)
         })
     }
 

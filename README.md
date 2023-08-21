@@ -46,7 +46,7 @@ let articles: [Article] = try await server.perform(GetArticlesRequest())
 ```
 
 <details>
-<summary><h2>HttpRequest</h2></summary>
+<summary><h1>HttpRequest</h1></summary>
 
 To define a custom HTTP request, you need to create a structure that conforms to the `HttpRequest` protocol. This protocol defines the properties and methods required to construct a complete HTTP request. Here's a breakdown of the key components you can customize:
 
@@ -296,7 +296,7 @@ In this example, the `GetBookRequest` structure defines a custom error enum `Req
 </details>
 
 <details>
-<summary><h2>Server</h2></summary>
+<summary><h1>Server</h1></summary>
 
 NetworkKit allows you to configure server settings separately from request creation, promoting scalability and ease of maintenance. This separation enables you to create multiple server configurations, each handling specific requests or targeting different server environments, such as development, preproduction, and production.
 

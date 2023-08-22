@@ -46,7 +46,7 @@ let articles: [Article] = try await server.perform(GetArticlesRequest())
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 GET https://api.example.com/articles
@@ -89,7 +89,7 @@ struct GetUserRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 GET https://api.example.com/user
@@ -125,7 +125,7 @@ struct GetUserRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 GET https://api.example.com/user?id=YOUR_ID
@@ -148,7 +148,7 @@ struct GetPostsRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 GET https://api.example.com/posts?category=technology&author=john_doe&limit=10
@@ -190,7 +190,7 @@ struct LoginRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 POST https://api.example.com/login
@@ -228,7 +228,7 @@ struct CreateUserRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 POST https://api.example.com/user
@@ -266,7 +266,7 @@ struct UploadDataRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 POST https://api.example.com/data
@@ -312,7 +312,7 @@ struct PostImageRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 POST https://api.example.com/image
@@ -353,7 +353,7 @@ struct UpdateProfileRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 POST https://api.example.com/profile
@@ -415,7 +415,7 @@ extension GetBookRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```http
 GET https://api.example.com/books?id=YOUR_BOOK_ID
@@ -440,7 +440,7 @@ Here's an example of defining a server configuration:
 
 ```swift
 struct MyServer: Server {
-    let scheme: String = "https"
+    let scheme: String = "https" // optional. Defaults to "https".
     let host: String = "api.myserver.com"
     let port: Int? = nil // optional. Defaults to nil.
     let accessTokenProvider: AccessTokenProvider? // optional. Defaults to nil.
@@ -551,7 +551,7 @@ struct GetUserProfileRequest: HttpRequest {
 ```
 
 <details>
-<summary>Click to see the full request</summary>
+<summary>Click to see the generated request</summary>
 
 ```swift
 GET /user/profile

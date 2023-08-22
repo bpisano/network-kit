@@ -553,7 +553,7 @@ struct GetUserProfileRequest: HttpRequest {
 <details>
 <summary>Click to see the generated request</summary>
 
-```swift
+```http
 GET /user/profile
 Headers:
     Authorization: Bearer [Access Token]

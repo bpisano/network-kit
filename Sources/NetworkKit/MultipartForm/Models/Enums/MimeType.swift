@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents various MIME types that can be used in HTTP requests for specifying content types.
-public enum MimeType {
+public enum MimeType: Equatable, Hashable, Codable {
     /// MIME type for PNG images.
     case pngImage
     /// MIME type for JPEG images.
@@ -53,7 +53,7 @@ public enum MimeType {
     case some(_ mimeType: String)
 
     /// Returns the string value of the MIME type.
-    var stringValue: String {
+    public var stringValue: String {
         switch self {
         case .pngImage:
             return "image/png"

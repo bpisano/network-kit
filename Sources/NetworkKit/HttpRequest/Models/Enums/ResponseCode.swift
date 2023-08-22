@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents various HTTP response status codes along with their descriptions.
-public enum ResponseCode: Int, LocalizedError {
+public enum ResponseCode: Int, CaseIterable, Hashable, Equatable, Codable, LocalizedError {
     /// 100 Continue: The server has received the request headers and the client should proceed to send the request body.
     case continueRequest = 100
     /// 101 Switching Protocols: The server is switching protocols according to the client request.

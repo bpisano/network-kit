@@ -9,17 +9,17 @@ import Foundation
 
 /// A protocol that represents a server that can perform any requests that conforms to the ``HttpRequest`` protocol.
 public protocol Server {
-    /// The scheme of the server. Default to `https`.
+    /// The scheme used for communication with the server. Defaults to `https`.
     var scheme: String { get }
-    /// The base url of the server that doesn't include the path of a request.
+    /// The base URL of the server, excluding the request path.
     /// Example: `api.github.com`
     var host: String { get }
-    /// The port of the server. Default to `nil`.
+    /// The port number used for communication with the server. Defaults to `nil`.
     var port: Int? { get }
-    /// An object responsible of storing the access token and refreshing it. Must conforms to the ``AccessTokenProvider`` protocol.
+    /// An object responsible for managing access tokens and refreshing them when needed. Must conform to the ``AccessTokenProvider`` protocol.
     var accessTokenProvider: AccessTokenProvider? { get }
-    /// The decoder for the data responses.
-    var decoder: JSONDecoder { get }
+    /// The JSON decoder used for decoding data responses.
+    var jsonDecoder: JSONDecoder { get }
 //    /// An object responsible to handle server logs.
 //    var logger: ServerLogger? { get }
 }
@@ -28,7 +28,7 @@ public extension Server {
     var scheme: String { "https" }
     var port: Int? { nil }
     var accessTokenProvider: AccessTokenProvider? { nil }
-    var decoder: JSONDecoder { .datefns }
+    var jsonDecoder: JSONDecoder { .datefns }
 //    var logger: ServerLogger? { NKServerLogger() }
 
     func perform<T: Decodable>(
@@ -36,7 +36,7 @@ public extension Server {
         onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> T {
         let data: Data = try await send(request, onProgress: onProgress)
-        return try decoder.decode(T.self, from: data)
+        return try jsonDecoder.decode(T.self, from: data)
     }
 
     func performRaw(

@@ -7,10 +7,15 @@
 
 import Foundation
 
+/// A struct representing a text field within a multipart form for textual content.
 public struct TextField: MultipartFormField {
     private let name: String
     private let value: String
 
+    /// Initializes a text field for the multipart form.
+    /// - Parameters:
+    ///   - name: The name of the field.
+    ///   - value: The text value of the field.
     public init(
         named name: String,
         value: String
@@ -19,6 +24,9 @@ public struct TextField: MultipartFormField {
         self.value = value
     }
 
+    /// Creates the data representation of the text field with the specified boundary.
+    /// - Parameter boundary: The boundary used for separating fields in the multipart form.
+    /// - Returns: The data representation of the text field.
     public func data(with boundary: String) -> Data {
         var fieldString: Data = Data()
         fieldString.append(text: "--\(boundary)\r\n")

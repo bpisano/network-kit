@@ -29,7 +29,7 @@ struct MyServer: Server {
 }
 ```
 
-2. **Define a Request**: Create a request structure that conforms to the **HttpRequest** protocol. For this example, let's assume you have a request to retrieve a list of articles:
+2. **Define a Request**: Create a request structure that conforms to the `HttpRequest` protocol. For this example, let's assume you have a request to retrieve a list of articles:
 
 ```swift
 struct GetArticlesRequest: HttpRequest {
@@ -38,7 +38,7 @@ struct GetArticlesRequest: HttpRequest {
 }
 ```
 
-3. **Perform the Request**: User the server configuration to perform the request.
+3. **Perform the Request**: Use the server configuration to perform the request.
 
 ```swift
 let server: MyServer = MyServer()

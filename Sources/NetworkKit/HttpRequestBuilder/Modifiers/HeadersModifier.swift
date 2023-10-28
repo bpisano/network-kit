@@ -11,10 +11,10 @@ struct HeadersModifiers: RequestModifier {
     func build(
         request: inout URLRequest,
         httpRequest: some HttpRequest,
-        server: Server
+        client: Client
     ) throws {
         addRequestHeaders(request: &request, httpRequest: httpRequest)
-        addAuthorizationHeader(request: &request, httpRequest: httpRequest, server: server)
+        addAuthorizationHeader(request: &request, httpRequest: httpRequest, client: client)
     }
 
     private func addRequestHeaders(request: inout URLRequest, httpRequest: some HttpRequest) {
@@ -25,9 +25,9 @@ struct HeadersModifiers: RequestModifier {
             }
     }
 
-    private func addAuthorizationHeader(request: inout URLRequest, httpRequest: some HttpRequest, server: Server) {
+    private func addAuthorizationHeader(request: inout URLRequest, httpRequest: some HttpRequest, client: Client) {
         guard httpRequest.accessTokenType != .none else { return }
-        guard let accessToken = server.accessTokenProvider?.accessToken else { return }
+        guard let accessToken = client.accessTokenProvider?.accessToken else { return }
         guard let headerValue = httpRequest.accessTokenType.header(withToken: accessToken) else { return }
         request.addValue(headerValue, forHTTPHeaderField: "authorization")
     }

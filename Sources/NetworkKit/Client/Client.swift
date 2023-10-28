@@ -7,29 +7,29 @@
 
 import Foundation
 
-/// A protocol that represents a server that can perform any requests that conforms to the ``HttpRequest`` protocol.
-public protocol Server {
-    /// The scheme used for communication with the server. Defaults to `https`.
+/// A protocol that represents a client that can perform any requests that conforms to the ``HttpRequest`` protocol.
+public protocol Client {
+    /// The scheme used for communication with the client. Defaults to `https`.
     var scheme: String { get }
-    /// The base URL of the server, excluding the request path.
+    /// The base URL of the server you want to reach, excluding the request path.
     /// Example: `api.github.com`
     var host: String { get }
-    /// The port number used for communication with the server. Defaults to `nil`.
+    /// The port number used for communication with the client. Defaults to `nil`.
     var port: Int? { get }
     /// An object responsible for managing access tokens and refreshing them when needed. Must conform to the ``AccessTokenProvider`` protocol.
     var accessTokenProvider: AccessTokenProvider? { get }
     /// The JSON decoder used for decoding data responses.
     var jsonDecoder: JSONDecoder { get }
-    /// An object responsible to handle server logs.
-    var logger: ServerLogger? { get }
+    /// An object responsible to handle client logs.
+    var logger: ClientLogger? { get }
 }
 
-public extension Server {
+public extension Client {
     var scheme: String { "https" }
     var port: Int? { nil }
     var accessTokenProvider: AccessTokenProvider? { nil }
     var jsonDecoder: JSONDecoder { .init() }
-    var logger: ServerLogger? { .default(identifier: host) }
+    var logger: ClientLogger? { .default(identifier: host) }
 
     func perform<T: Decodable>(
         _ request: some HttpRequest,
@@ -60,7 +60,7 @@ public extension Server {
         onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> Data {
         logger?.logProgress(request: request, from: self)
-        let performer: HttpRequestPerformer = .init(server: self)
+        let performer: HttpRequestPerformer = .init(client: self)
         let handler: HttpRequestResultHandler = .init()
         let (data, response) = try await performer.perform(request, onProgress: onProgress)
         let behavior: ResultBehavior = handler.handle(response: response, data: data, for: request)
@@ -78,7 +78,7 @@ public extension Server {
                 return try await send(request, context: .init(shouldRetryOnFail: false))
             }
             logger?.logError(receivedData: data, for: request, from: self)
-            throw ResponseCode(rawValue: response.statusCode) ?? ServerError.refreshAccessTokenFailed
+            throw ResponseCode(rawValue: response.statusCode) ?? ClientError.refreshAccessTokenFailed
         }
     }
 }

@@ -22,13 +22,13 @@ struct HttpRequestBuilder {
         .init(modifiers: modifiers + [modifier])
     }
     
-    func buildRequest(from httpRequest: some HttpRequest, server: Server) throws -> URLRequest {
+    func buildRequest(from httpRequest: some HttpRequest, client: Client) throws -> URLRequest {
         var request: URLRequest = .init()
         for modifier in modifiers {
             try modifier.build(
                 request: &request,
                 httpRequest: httpRequest,
-                server: server
+                client: client
             )
         }
         return request

@@ -34,14 +34,14 @@ public protocol HttpRequest {
     /// The type of the access token. Default to `.none`.
     var accessTokenType: AccessTokenType { get }
 
-    /// An array of status codes that are interpreted as a success for the server. Default to 200 and 201.
+    /// An array of status codes that are interpreted as a success for the client. Default to 200 and 201.
     var successStatusCodes: [Int] { get }
     /// The timeout of the request. Default to 5 seconds.
     var timeout: TimeInterval { get }
     /// The cache policy of the request. Default to `.reloadIgnoringLocalAndRemoteCacheData`.
     var cachePolicy: URLRequest.CachePolicy { get }
 
-    func urlRequest(server: Server) throws -> URLRequest
+    func urlRequest(client: Client) throws -> URLRequest
     func makeHeaders() -> HttpHeaders
     func encodeBody() throws -> Data?
     func failureBehavior(for statusCode: Int) -> RequestFailureBehavior
@@ -63,7 +63,7 @@ public extension HttpRequest {
     var timeout: TimeInterval { 5 }
     var cachePolicy: URLRequest.CachePolicy { .reloadIgnoringLocalAndRemoteCacheData }
 
-    func urlRequest(server: Server) throws -> URLRequest {
+    func urlRequest(client: Client) throws -> URLRequest {
         try HttpRequestBuilder()
             .using(.method)
             .using(.queryParameters)
@@ -71,7 +71,7 @@ public extension HttpRequest {
             .using(.headers)
             .using(.timeout)
             .using(.cache)
-            .buildRequest(from: self, server: server)
+            .buildRequest(from: self, client: client)
     }
 
     func failureBehavior(for statusCode: Int) -> RequestFailureBehavior {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum ServerError: LocalizedError {
+public enum ClientError: LocalizedError {
     case refreshAccessTokenFailed
     
     public var errorDescription: String? {

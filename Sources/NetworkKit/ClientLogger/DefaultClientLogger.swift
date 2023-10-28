@@ -8,32 +8,32 @@
 import Foundation
 import OSLog
 
-public final class DefaultServerLogger: ServerLogger {
+public final class DefaultClientLogger: ClientLogger {
     private let logger: Logger
 
     public init(identifier: String) {
         self.logger = Logger(subsystem: identifier, category: "network")
     }
 
-    public func logProgress(request: some HttpRequest, from server: Server) {
-        guard let description: String = try? request.urlRequest(server: server).debugDescription else { return }
+    public func logProgress(request: some HttpRequest, from client: Client) {
+        guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         logger.info("⏳ \(description)")
     }
 
-    public func logSuccess(receivedData: Data, for request: some HttpRequest, from server: Server) {
-        guard let description: String = try? request.urlRequest(server: server).debugDescription else { return }
+    public func logSuccess(receivedData: Data, for request: some HttpRequest, from client: Client) {
+        guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         let data: String = stringData(for: receivedData)
         logger.log(level: .info, "\(description) \(data, privacy: .private)")
     }
 
-    public func logRefreshToken(receivedData: Data, for request: some HttpRequest, from server: Server) {
-        guard let description: String = try? request.urlRequest(server: server).debugDescription else { return }
+    public func logRefreshToken(receivedData: Data, for request: some HttpRequest, from client: Client) {
+        guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         let data: String = stringData(for: receivedData)
         logger.warning("🔄 \(description) \(data, privacy: .private)")
     }
 
-    public func logError(receivedData: Data, for request: some HttpRequest, from server: Server) {
-        guard let description: String = try? request.urlRequest(server: server).debugDescription else { return }
+    public func logError(receivedData: Data, for request: some HttpRequest, from client: Client) {
+        guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         let data: String = stringData(for: receivedData)
         logger.log(level: .fault, "\(description) \(data, privacy: .private)")
     }
@@ -49,7 +49,7 @@ public final class DefaultServerLogger: ServerLogger {
     }
 }
 
-extension ServerLogger where Self == DefaultServerLogger {
+extension ClientLogger where Self == DefaultClientLogger {
     static func `default`(identifier: String) -> Self {
         .init(identifier: identifier)
     }

@@ -8,7 +8,7 @@
 import Foundation
 import NetworkKit
 
-struct TestServer: Server {
+struct TestClient: Client {
     let scheme: String = "http"
     let host: String = "localhost"
     let port: Int? = 3000

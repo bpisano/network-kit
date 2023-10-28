@@ -4,7 +4,7 @@ A versatile Swift package that simplifies HTTP requests, enabling efficient comm
 
 ### Key Features
 
-1. **Separation of Server and Request**: NetworkKit distinguishes between server configuration and request creation allowing each request to reside in its own file. This modularity is beneficial for managing various server environments, including development, preproduction, and production.
+1. **Separation of Client and Request**: NetworkKit distinguishes between client configuration and request creation allowing each request to reside in its own file. This modularity is beneficial for managing various client environments, including development, preproduction, and production.
 2. **Modern Request Body Construction**: The `HttpRequest` protocol simplifies the process of defining HTTP methods, headers, query parameters, and body content.
 3. **Automated Refresh Token Management**: NetworkKit simplifies access token handling through the `AccessTokenProvider` protocol. Efficiently manage token refreshes, ensuring consistent and secure communication with APIs.
 4. **Per-Request Error Handling**: Define custom error behaviors and contextual descriptions for specific status codes.
@@ -21,10 +21,10 @@ dependencies: [
 
 # Quick start
 
-1. **Create a Server Configuration**: Define a server configuration using a `struct` that conforms to the `Server` protocol. You can create your own server structure based on your server's URL and configuration.
+1. **Create a Client Configuration**: Define a client configuration using a `struct` that conforms to the `Client` protocol. You can create your own client structure based on your client's URL and configuration.
 
 ```swift
-struct MyServer: Server {
+struct MyClient: Client {
     let host: String = "api.example.com"
 }
 ```
@@ -38,11 +38,11 @@ struct GetArticlesRequest: HttpRequest {
 }
 ```
 
-3. **Perform the Request**: Use the server configuration to perform the request.
+3. **Perform the Request**: Use the client configuration to perform the request.
 
 ```swift
-let server: MyServer = MyServer()
-let articles: [Article] = try await server.perform(GetArticlesRequest())
+let client = MyClient()
+let articles: [Article] = try await client.perform(GetArticlesRequest())
 ```
 
 <details>
@@ -61,7 +61,7 @@ To define a custom HTTP request, you need to create a structure that conforms to
 
 | Parameter         | Description                                                                       |
 |-------------------|-----------------------------------------------------------------------------------|
-| `path`            | URL path of the request (excluding base server URL)                              |
+| `path`            | URL path of the request (excluding base client URL)                              |
 | `method`          | HTTP method to be used for the request (e.g., GET, POST, PUT, DELETE)            |
 | `headers`         | Additional headers required for the request                                      |
 | `queryParameters` | Query parameters to include in the URL                                           |
@@ -428,18 +428,18 @@ In this example, the `GetBookRequest` structure defines a custom error enum `Req
 </details>
 
 <details>
-<summary><h1>Server</h1></summary>
+<summary><h1>Client</h1></summary>
 
-NetworkKit allows you to configure server settings separately from request creation, promoting scalability and ease of maintenance. This separation enables you to create multiple server configurations, each handling specific requests or targeting different server environments, such as development, preproduction, and production.
+NetworkKit allows you to configure client settings separately from request creation, promoting scalability and ease of maintenance. This separation enables you to create multiple client configurations, each handling specific requests or targeting different client environments, such as development, preproduction, and production.
 
-## Defining a Server
+## Defining a Client
 
-To configure a server, create a structure that conforms to the `Server` protocol. This structure defines properties such as the server's scheme, host, port, and an optional `AccessTokenProvider` for managing access tokens and their automatic refreshing.
+To configure a client, create a structure that conforms to the `Client` protocol. This structure defines properties such as the client's scheme, host, port, and an optional `AccessTokenProvider` for managing access tokens and their automatic refreshing.
 
-Here's an example of defining a server configuration:
+Here's an example of defining a client configuration:
 
 ```swift
-struct MyServer: Server {
+struct MyClient: Client {
     let scheme: String = "https" // optional. Defaults to "https".
     let host: String = "api.myserver.com"
     let port: Int? = nil // optional. Defaults to nil.
@@ -451,32 +451,32 @@ struct MyServer: Server {
 }
 ```
 
-In this example, the `MyServer` structure specifies the server's scheme, host, and an optional access token provider for managing access tokens.
+In this example, the `MyClient` structure specifies the client's scheme, host, and an optional access token provider for managing access tokens.
 
-## Server Configuration Properties
+## Client Configuration Properties
 
-When configuring a server using NetworkKit, you have the following properties that can be customized:
+When configuring a client using NetworkKit, you have the following properties that can be customized:
 
 | Property                 | Description                                                                     |
 |--------------------------|---------------------------------------------------------------------------------|
-| `scheme`                 | The scheme of the server (e.g., "http" or "https")                              |
-| `host`                   | The base URL of the server (e.g., "api.example.com")                           |
-| `port`                   | The port number for the server (optional)                                      |
+| `scheme`                 | The scheme of the client (e.g., "http" or "https")                              |
+| `host`                   | The base URL of the client (e.g., "api.example.com")                           |
+| `port`                   | The port number for the client (optional)                                      |
 | `accessTokenProvider`    | An object responsible for managing access tokens and their automatic refreshing |
 | `jsonDecoder`                | The decoder used for parsing data responses                                     |
 
 ## Performing Requests
 
-NetworkKit provides several methods to perform HTTP requests using the configured server. Each method caters to different scenarios, such as retrieving decoded data, fetching raw data, or simply executing a request.
+NetworkKit provides several methods to perform HTTP requests using the configured client. Each method caters to different scenarios, such as retrieving decoded data, fetching raw data, or simply executing a request.
 
 ### Perform and Decode
 
-The `perform` method is used when you want to retrieve and decode data from the server's response. This method takes an `HttpRequest` instance as its parameter and returns a decoded object of the specified type.
+The `perform` method is used when you want to retrieve and decode data from the client's response. This method takes an `HttpRequest` instance as its parameter and returns a decoded object of the specified type.
 
 ```swift
-let server = MyServer()
+let client = MyClient()
 let getUserRequest = GetUserRequest(id: "123")
-let user: User = try await server.perform(getUserRequest) // User should conforms to Decodable
+let user: User = try await client.perform(getUserRequest) // User should conforms to Decodable
 ```
 
 ### Perform Raw
@@ -484,9 +484,9 @@ let user: User = try await server.perform(getUserRequest) // User should conform
 The `performRaw` method is suitable when you want to fetch the raw data of the response without decoding it. This can be useful when you need to access the raw data for purposes such as file downloads.
 
 ```swift
-let server = MyServer()
+let client = MyClient()
 let getImageRequest = GetImageRequest(imageID: "456")
-let imageData: Data = try await server.performRaw(getImageRequest) // Returns the raw data of the response
+let imageData: Data = try await client.performRaw(getImageRequest) // Returns the raw data of the response
 ```
 
 ### Perform Request
@@ -494,9 +494,9 @@ let imageData: Data = try await server.performRaw(getImageRequest) // Returns th
 If you only want to execute a request without requiring any response data or raw data retrieval, you can use the `perform` method without specifying a return type.
 
 ```swift
-let server = MyServer()
+let client = MyClient()
 let deletePostRequest = DeletePostRequest(postID: "789")
-try await server.perform(deletePostRequest)
+try await client.perform(deletePostRequest)
 ```
 
 </details>
@@ -522,14 +522,14 @@ final class KeychainAccessTokenProvider: AccessTokenProvider {
 }
 ```
 
-### Configuring an AccessTokenProvider in a Server
+### Configuring an AccessTokenProvider in a Client
 
-Inject your custom `AccessTokenProvider` into a server to enable access token management:
+Inject your custom `AccessTokenProvider` into a client to enable access token management:
 
 ```swift
-struct MyServer: Server {
+struct MyClient: Client {
     let host: String = "api.example.com"
-    let accessTokenProvider: AccessTokenProvider? // add the property of the Server protocol
+    let accessTokenProvider: AccessTokenProvider? // add the property of the Client protocol
 
     // inject the access token provider in the initializer
     init(accessTokenProvider: AccessTokenProvider? = nil) {
@@ -565,10 +565,10 @@ Headers:
 
 ```swift
 let accessTokenProvider = KeychainAccessTokenProvider()
-let server = MyServer(accessTokenProvider: accessTokenProvider)
-let userProfile: UserProfile = try await server.perform(GetUserProfileRequest())
+let client = MyClient(accessTokenProvider: accessTokenProvider)
+let userProfile: UserProfile = try await client.perform(GetUserProfileRequest())
 ```
 
-When performing a request with an access token, the server will automatically add the token to the request header. If the provided access token is invalid, the server will attempt to refresh it using the `refreshAccessToken` method of the `AccessTokenProvider`. If the refreshed access token is still invalid, an error will be thrown, indicating the failure to authenticate the request.
+When performing a request with an access token, the client will automatically add the token to the request header. If the provided access token is invalid, the client will attempt to refresh it using the `refreshAccessToken` method of the `AccessTokenProvider`. If the refreshed access token is still invalid, an error will be thrown, indicating the failure to authenticate the request.
 
 </details>

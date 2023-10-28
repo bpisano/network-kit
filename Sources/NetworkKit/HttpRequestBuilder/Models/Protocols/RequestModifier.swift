@@ -11,6 +11,6 @@ protocol RequestModifier {
     func build(
         request: inout URLRequest,
         httpRequest: some HttpRequest,
-        server: Server
+        client: Client
     ) throws
 }

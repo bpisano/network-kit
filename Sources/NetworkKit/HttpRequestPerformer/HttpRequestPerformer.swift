@@ -8,17 +8,17 @@
 import Foundation
 
 struct HttpRequestPerformer {
-    private let server: Server
+    private let client: Client
     
-    init(server: Server) {
-        self.server = server
+    init(client: Client) {
+        self.client = client
     }
 
     func perform(
         _ request: some HttpRequest,
         onProgress: ((Progress) -> Void)? = nil
     ) async throws -> (data: Data, response: HTTPURLResponse) {
-        let urlRequest: URLRequest = try request.urlRequest(server: server)
+        let urlRequest: URLRequest = try request.urlRequest(client: client)
         let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
         let length: Int = Int(response.expectedContentLength)
         var data: Data = .init(capacity: length)
@@ -36,13 +36,13 @@ struct HttpRequestPerformer {
 }
 
 extension HttpRequestPerformer {
-    enum ReponseError: LocalizedError {
+    enum ResponseError: LocalizedError {
         case invalidResponseType
         
         var errorDescription: String? {
             switch self {
             case .invalidResponseType:
-                return "Invalide response format."
+                return "Invalid response format."
             }
         }
     }

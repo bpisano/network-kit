@@ -11,7 +11,7 @@ struct MethodModifier: RequestModifier {
     func build(
         request: inout URLRequest,
         httpRequest: some HttpRequest,
-        server: Server
+        client: Client
     ) throws {
         request.httpMethod = httpRequest.method.rawValue.capitalized
     }

@@ -10,14 +10,14 @@ import NetworkKit
 
 final class HttpRequestTests: XCTestCase {
     func testSuccessfullRequest() async throws {
-        let server: TestServer = .init()
-        let users: [User] = try await server.perform(.getUsers)
+        let client: TestClient = .init()
+        let users: [User] = try await client.perform(.getUsers)
         XCTAssertEqual(users.count, 3)
     }
 
     func testErrorRequest() async throws {
-        let server: TestServer = .init()
-        await AsyncAssertThrowsError(try await server.perform(.getError), handleError: { error in
+        let client: TestClient = .init()
+        await AsyncAssertThrowsError(try await client.perform(.getError), handleError: { error in
             guard let error = error as? GetErrorRequest.RequestError else {
                 XCTFail("Invalid error type.")
                 return
@@ -27,16 +27,16 @@ final class HttpRequestTests: XCTestCase {
     }
 
     func testQueryParamatersRequest() async throws {
-        let server: TestServer = .init()
+        let client: TestClient = .init()
         let userId: String = "user_id"
-        let user: User = try await server.perform(.getUser(withId: userId))
+        let user: User = try await client.perform(.getUser(withId: userId))
         XCTAssertEqual(user.id, userId)
     }
 
     func testBodyRequest() async throws {
-        let server: TestServer = .init()
+        let client: TestClient = .init()
         let userToCreate: User = .mock()
-        let createdUser: User = try await server.perform(.createUser(userToCreate))
+        let createdUser: User = try await client.perform(.createUser(userToCreate))
         XCTAssertEqual(createdUser, userToCreate)
     }
 }

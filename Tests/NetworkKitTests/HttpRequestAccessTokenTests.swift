@@ -11,14 +11,14 @@ import NetworkKit
 final class HttpRequestAcessTokenTests: XCTestCase {
     func testValidAccessToken() async throws {
         let accessTokenProvider: TestAccessTokenProvider = .init(accessToken: TestAccessTokenProvider.validAccessToken)
-        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
-        try await server.perform(.getPrivate)
+        let client: TestClient = .init(accessTokenProvider: accessTokenProvider)
+        try await client.perform(.getPrivate)
     }
 
     func testInvalidAccessToken() async throws {
         let accessTokenProvider: TestAccessTokenProvider = .init()
-        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
-        await AsyncAssertThrowsError(try await server.perform(.getPrivate), handleError: { error in
+        let client: TestClient = .init(accessTokenProvider: accessTokenProvider)
+        await AsyncAssertThrowsError(try await client.perform(.getPrivate), handleError: { error in
             guard let error = error as? ResponseCode else {
                 XCTFail("Invalid error type.")
                 return
@@ -30,15 +30,15 @@ final class HttpRequestAcessTokenTests: XCTestCase {
     func testRefreshAccessToken() async throws {
         let accessTokenProvider: TestAccessTokenProvider = .init()
         accessTokenProvider.onRefreshAccessToken = { TestAccessTokenProvider.validAccessToken }
-        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
-        try await server.perform(.getPrivate)
+        let client: TestClient = .init(accessTokenProvider: accessTokenProvider)
+        try await client.perform(.getPrivate)
     }
 
     func testFailRefreshAccessToken() async throws {
         let accessTokenProvider: TestAccessTokenProvider = .init()
         accessTokenProvider.onRefreshAccessToken = { throw TestError.refreshTokenFailed }
-        let server: TestServer = .init(accessTokenProvider: accessTokenProvider)
-        await AsyncAssertThrowsError(try await server.perform(.getPrivate), handleError: { error in
+        let client: TestClient = .init(accessTokenProvider: accessTokenProvider)
+        await AsyncAssertThrowsError(try await client.perform(.getPrivate), handleError: { error in
             guard let error = error as? TestError else {
                 XCTFail("Invalid error type.")
                 return

@@ -11,7 +11,7 @@ struct BodyModifier: RequestModifier {
     func build(
         request: inout URLRequest,
         httpRequest: some HttpRequest,
-        server: Server
+        client: Client
     ) throws {
         request.httpBody = try httpRequest.encodeBody()
     }

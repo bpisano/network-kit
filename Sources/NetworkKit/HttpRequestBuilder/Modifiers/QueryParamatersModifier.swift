@@ -24,11 +24,19 @@ struct QueryParametersModifier: RequestModifier {
         components.scheme = client.scheme
         components.host = client.host
         components.port = client.port
-        components.path = httpRequest.path
+        components.path = resolvePath(httpRequest.path)
         if let queryParameters = httpRequest.queryParameters {
             components.queryItems = queryParameters.queryItems(dateFormatter: httpRequest.dateFormatter)
         }
         return components
+    }
+
+    private func resolvePath(_ path: String) -> String {
+        guard let firstCharacter = path.first else { return path }
+        if firstCharacter != "/" {
+            return "/" + path
+        }
+        return path
     }
 }
 

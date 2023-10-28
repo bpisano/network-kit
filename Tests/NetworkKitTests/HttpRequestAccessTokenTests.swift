@@ -8,7 +8,7 @@
 import XCTest
 import NetworkKit
 
-final class HttpRequestAcessTokenTests: XCTestCase {
+final class HttpRequestAccessTokenTests: XCTestCase {
     func testValidAccessToken() async throws {
         let accessTokenProvider: TestAccessTokenProvider = .init(accessToken: TestAccessTokenProvider.validAccessToken)
         let client: TestClient = .init(accessTokenProvider: accessTokenProvider)
@@ -48,7 +48,7 @@ final class HttpRequestAcessTokenTests: XCTestCase {
     }
 }
 
-extension HttpRequestAcessTokenTests {
+extension HttpRequestAccessTokenTests {
     private enum TestError: Error {
         case refreshTokenFailed
     }

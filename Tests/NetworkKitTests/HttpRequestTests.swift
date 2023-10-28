@@ -9,7 +9,7 @@ import XCTest
 import NetworkKit
 
 final class HttpRequestTests: XCTestCase {
-    func testSuccessfullRequest() async throws {
+    func testSuccessfulRequest() async throws {
         let client: TestClient = .init()
         let users: [User] = try await client.perform(.getUsers)
         XCTAssertEqual(users.count, 3)
@@ -26,7 +26,7 @@ final class HttpRequestTests: XCTestCase {
         })
     }
 
-    func testQueryParamatersRequest() async throws {
+    func testQueryParametersRequest() async throws {
         let client: TestClient = .init()
         let userId: String = "user_id"
         let user: User = try await client.perform(.getUser(withId: userId))

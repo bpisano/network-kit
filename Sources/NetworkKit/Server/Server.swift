@@ -20,16 +20,16 @@ public protocol Server {
     var accessTokenProvider: AccessTokenProvider? { get }
     /// The JSON decoder used for decoding data responses.
     var jsonDecoder: JSONDecoder { get }
-//    /// An object responsible to handle server logs.
-//    var logger: ServerLogger? { get }
+    /// An object responsible to handle server logs.
+    var logger: ServerLogger? { get }
 }
 
 public extension Server {
     var scheme: String { "https" }
     var port: Int? { nil }
     var accessTokenProvider: AccessTokenProvider? { nil }
-    var jsonDecoder: JSONDecoder { .datefns }
-//    var logger: ServerLogger? { NKServerLogger() }
+    var jsonDecoder: JSONDecoder { .init() }
+    var logger: ServerLogger? { .default(identifier: host) }
 
     func perform<T: Decodable>(
         _ request: some HttpRequest,
@@ -59,20 +59,25 @@ public extension Server {
         context: HttpRequestContext = .init(),
         onProgress: ((_ progress: Progress) -> Void)? = nil
     ) async throws -> Data {
+        logger?.logProgress(request: request, from: self)
         let performer: HttpRequestPerformer = .init(server: self)
         let handler: HttpRequestResultHandler = .init()
         let (data, response) = try await performer.perform(request, onProgress: onProgress)
         let behavior: ResultBehavior = handler.handle(response: response, data: data, for: request)
         switch behavior {
         case let .throwError(error):
+            logger?.logError(receivedData: data, for: request, from: self)
             throw error
         case let .decodeData(data):
+            logger?.logSuccess(receivedData: data, for: request, from: self)
             return data
         case .refreshAccessToken:
             if let accessTokenProvider, context.shouldRetryOnFail {
+                logger?.logRefreshToken(receivedData: data, for: request, from: self)
                 try await accessTokenProvider.refreshAccessToken()
                 return try await send(request, context: .init(shouldRetryOnFail: false))
             }
+            logger?.logError(receivedData: data, for: request, from: self)
             throw ResponseCode(rawValue: response.statusCode) ?? ServerError.refreshAccessTokenFailed
         }
     }

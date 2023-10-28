@@ -8,6 +8,10 @@
 import Foundation
 
 extension Dictionary: HttpBody where Key == String {
+    public var overrideHeaders: HttpHeaders? {
+        HttpHeader("Content-Type", value: "application/json")
+    }
+    
     public func encode(using jsonEncoder: JSONEncoder) throws -> Data {
         try JSONSerialization.data(withJSONObject: self)
     }

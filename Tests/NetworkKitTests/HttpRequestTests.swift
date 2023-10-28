@@ -39,4 +39,11 @@ final class HttpRequestTests: XCTestCase {
         let createdUser: User = try await client.perform(.createUser(userToCreate))
         XCTAssertEqual(createdUser, userToCreate)
     }
+
+    func testBodyDictionaryRequest() async throws {
+        let client: TestClient = .init()
+        let userToCreate: User = .mock()
+        let createdUser: User = try await client.perform(.createUserDictionary(userToCreate))
+        XCTAssertEqual(createdUser, userToCreate)
+    }
 }

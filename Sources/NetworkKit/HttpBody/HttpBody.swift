@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol HttpBody {
+public protocol HttpBody: CustomDebugStringConvertible {
     @HttpHeadersBuilder
     var overrideHeaders: HttpHeaders? { get }
 

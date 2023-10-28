@@ -8,6 +8,10 @@
 import Foundation
 
 public struct EmptyBody: HttpBody {
+    public var debugDescription: String {
+        ""
+    }
+
     public func encode(using jsonEncoder: JSONEncoder) throws -> Data {
         .init()
     }

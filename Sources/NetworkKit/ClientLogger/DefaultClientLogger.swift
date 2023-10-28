@@ -17,13 +17,13 @@ public final class DefaultClientLogger: ClientLogger {
 
     public func logProgress(request: some HttpRequest, from client: Client) {
         guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
-        logger.info("⏳ \(description)")
+        logger.info("⏳ \(description)\n\(request.body.debugDescription)")
     }
 
     public func logSuccess(receivedData: Data, for request: some HttpRequest, from client: Client) {
         guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         let data: String = stringData(for: receivedData)
-        logger.log(level: .info, "\(description) \(data, privacy: .private)")
+        logger.info("✅ \(description) \(data, privacy: .private)")
     }
 
     public func logRefreshToken(receivedData: Data, for request: some HttpRequest, from client: Client) {
@@ -35,14 +35,14 @@ public final class DefaultClientLogger: ClientLogger {
     public func logError(receivedData: Data, for request: some HttpRequest, from client: Client) {
         guard let description: String = try? request.urlRequest(client: client).debugDescription else { return }
         let data: String = stringData(for: receivedData)
-        logger.log(level: .fault, "\(description) \(data, privacy: .private)")
+        logger.fault("\(description) \(data, privacy: .private)")
     }
 
     private func stringData(for receivedData: Data) -> String {
         if let jsonData = receivedData.prettyPrintedJSON {
-            return "\n \(jsonData)"
+            return "\n\(jsonData)"
         } else if let stringData = String(data: receivedData, encoding: .utf8) {
-            return "\n \(stringData)"
+            return "\n\(stringData)"
         } else {
             return ""
         }

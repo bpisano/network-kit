@@ -14,6 +14,15 @@ public struct Encode<T: Encodable>: HttpBody {
         HttpHeader("Content-Type", value: "application/json")
     }
 
+    public var debugDescription: String {
+        if let object = object as? CustomDebugStringConvertible {
+            return object.debugDescription
+        } else if let prettyPrintedJSON = try? JSONEncoder().encode(object).prettyPrintedJSON {
+            return prettyPrintedJSON
+        }
+        return "\(object)"
+    }
+
     public init(_ object: @autoclosure () -> T) {
         self.object = object()
     }

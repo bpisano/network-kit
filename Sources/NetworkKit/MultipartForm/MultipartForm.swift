@@ -12,6 +12,10 @@ public struct MultipartForm: HttpBody {
     private var data: Data
     private let boundary: String = "test"
 
+    public var debugDescription: String {
+        String(data: data, encoding: .utf8) ?? "Unable to represent form data as String."
+    }
+
     /// A dictionary of headers to override the default headers for the multipart form data.
     public var overrideHeaders: HttpHeaders? {
         HttpHeader("Content-Type", value: "multipart/form-data; boundary=\(boundary)")

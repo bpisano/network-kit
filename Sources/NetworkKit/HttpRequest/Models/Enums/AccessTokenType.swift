@@ -8,7 +8,7 @@
 import Foundation
 
 /// An enum representing the way an access token should be formatted in the request header.
-public enum AccessTokenType: Equatable, Hashable, Codable {
+public enum AccessTokenType: Equatable, Hashable, Codable, Sendable {
     /// No access token should be added to the request header.
     case none
     /// The access token should be formatted as a Bearer token in the request header.

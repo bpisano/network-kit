@@ -8,7 +8,7 @@
 import Foundation
 
 /// An enum representing various HTTP methods that can be used in network requests.
-public enum HttpMethod: String, CaseIterable, Identifiable, Hashable, Codable {
+public enum HttpMethod: String, CaseIterable, Identifiable, Hashable, Codable, Sendable {
     /// The HTTP GET method requests data from a specified resource.
     case get = "GET"
     /// The HTTP POST method sends data to the server to create a new resource.

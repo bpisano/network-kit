@@ -36,7 +36,7 @@ struct HttpRequestPerformer {
 }
 
 extension HttpRequestPerformer {
-    enum ResponseError: LocalizedError {
+    enum ResponseError: Sendable, LocalizedError {
         case invalidResponseType
         
         var errorDescription: String? {

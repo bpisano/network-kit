@@ -8,7 +8,7 @@
 import Foundation
 
 /// Represents various MIME types that can be used in HTTP requests for specifying content types.
-public enum MimeType: Equatable, Hashable, Codable {
+public enum MimeType: Equatable, Hashable, Codable, Sendable {
     /// MIME type for PNG images.
     case pngImage
     /// MIME type for JPEG images.
@@ -56,47 +56,47 @@ public enum MimeType: Equatable, Hashable, Codable {
     public var stringValue: String {
         switch self {
         case .pngImage:
-            return "image/png"
+            "image/png"
         case .jpegImage:
-            return "image/jpeg"
+            "image/jpeg"
         case .gifImage:
-            return "image/gif"
+            "image/gif"
         case .webpImage:
-            return "image/webp"
+            "image/webp"
         case .svgImage:
-            return "image/svg+xml"
+            "image/svg+xml"
         case .pdfDocument:
-            return "application/pdf"
+            "application/pdf"
         case .json:
-            return "application/json"
+            "application/json"
         case .xml:
-            return "application/xml"
+            "application/xml"
         case .plainText:
-            return "text/plain"
+            "text/plain"
         case .html:
-            return "text/html"
+            "text/html"
         case .css:
-            return "text/css"
+            "text/css"
         case .javascript:
-            return "application/javascript"
+            "application/javascript"
         case .mp3Audio:
-            return "audio/mpeg"
+            "audio/mpeg"
         case .wavAudio:
-            return "audio/wav"
+            "audio/wav"
         case .oggAudio:
-            return "audio/ogg"
+            "audio/ogg"
         case .mp4Video:
-            return "video/mp4"
+            "video/mp4"
         case .webmVideo:
-            return "video/webm"
+            "video/webm"
         case .aviVideo:
-            return "video/avi"
+            "video/avi"
         case .mkvVideo:
-            return "video/x-matroska"
+            "video/x-matroska"
         case .movVideo:
-            return "video/quicktime"
+            "video/quicktime"
         case let .some(mimeType):
-            return mimeType
+            mimeType
         }
     }
 }

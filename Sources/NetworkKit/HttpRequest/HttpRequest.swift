@@ -8,7 +8,7 @@
 import Foundation
 
 /// A protocol used to build an HTTP request.
-public protocol HttpRequest {
+public protocol HttpRequest: Sendable {
     associatedtype Body: HttpBody
 
     /// The path of the request that does not include the base.

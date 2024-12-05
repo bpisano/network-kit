@@ -1,5 +1,4 @@
-// swift-tools-version: 5.8
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// swift-tools-version: 6.0
 
 import PackageDescription
 
@@ -15,17 +14,20 @@ let package = Package(
     products: [
         .library(
             name: "NetworkKit",
-            targets: ["NetworkKit"]),
+            targets: ["NetworkKit"]
+        ),
     ],
     targets: [
         .target(
             name: "NetworkKit",
-            dependencies: []),
+            dependencies: []
+        ),
         .testTarget(
             name: "NetworkKitTests",
             dependencies: ["NetworkKit"],
             resources: [
                 .process("Resources/test_image.jpeg")
-            ]),
+            ]
+        ),
     ]
 )

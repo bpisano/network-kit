@@ -6,6 +6,11 @@ A modern, type-safe networking library for Swift with async/await support.
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Request Performing](#request-performing)
+  - [Decoded Responses](#decoded-responses)
+  - [Empty Responses](#empty-responses)
+  - [Raw Data Responses](#raw-data-responses)
+  - [Progress Tracking](#progress-tracking)
 - [Request Types](#request-types)
   - [GET Request](#get-request)
   - [POST Request with Body](#post-request-with-body)
@@ -23,7 +28,6 @@ A modern, type-safe networking library for Swift with async/await support.
 - [Middleware](#middleware)
 - [Interceptors](#interceptors)
 - [Custom Logging](#custom-logging)
-- [Progress Tracking](#progress-tracking)
 
 ## Installation
 
@@ -71,6 +75,46 @@ let request = GetUserRequest(
 )
 let response: Response<User> = try await client.perform(request)
 let user = response.data
+```
+
+## Request Performing
+
+NetworkKit provides several methods for performing requests, each suited for different use cases:
+
+### Decoded Responses
+
+For requests that return structured data, use the `perform` method with a decodable type:
+
+```swift
+let response: Response<User> = try await client.perform(request)
+let user = response.data
+```
+
+### Empty Responses
+
+For requests that don't return a response body (like DELETE requests):
+
+```swift
+try await client.perform(deleteRequest)
+```
+
+### Raw Data Responses
+
+For requests where you need to handle the response data manually:
+
+```swift
+let response: Response<Data> = try await client.performRaw(request)
+let rawData = response.data
+```
+
+### Progress Tracking
+
+All perform methods support progress tracking for large requests:
+
+```swift
+let response = try await client.perform(request) { progress in
+    print("Progress: \(progress.fractionCompleted)")
+}
 ```
 
 ## Request Types
@@ -453,16 +497,6 @@ client.logger = CustomLogger()
 ```
 
 </details>
-
-## Progress Tracking
-
-Track download progress for large files or responses:
-
-```swift
-let response = try await client.perform(request) { progress in
-    print("Download progress: \(progress.fractionCompleted)")
-}
-```
 
 ## Licence
 

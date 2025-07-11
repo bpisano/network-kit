@@ -1,84 +1,127 @@
 //
-//  File.swift
-//  
+//  Client.swift
+//  NetworkKit
 //
-//  Created by Benjamin Pisano on 07/08/2023.
+//  Created by Benjamin Pisano on 07/07/2025.
 //
 
 import Foundation
 
-/// A protocol that represents a client that can perform any requests that conforms to the ``HttpRequest`` protocol.
-public protocol Client {
-    /// The scheme used for communication with the client. Defaults to `https`.
-    var scheme: String { get }
-    /// The base URL of the server you want to reach, excluding the request path.
-    /// Example: `api.github.com`
-    var host: String { get }
-    /// The port number used for communication with the client. Defaults to `nil`.
-    var port: Int? { get }
-    /// An object responsible for managing access tokens and refreshing them when needed. Must conform to the ``AccessTokenProvider`` protocol.
-    var accessTokenProvider: AccessTokenProvider? { get }
-    /// The JSON decoder used for decoding data responses.
-    var jsonDecoder: JSONDecoder { get }
-    /// An object responsible to handle client logs.
-    var logger: ClientLogger? { get }
-}
+/// A concrete implementation of `HttpClient` that provides network request functionality.
+///
+/// `Client` is the main entry point for making HTTP requests in NetworkKit. It encapsulates
+/// all the configuration needed for network communication, including the base URL, encoders,
+/// decoders, logging, middleware, and interceptors.
+///
+/// ## Usage
+///
+/// ```swift
+/// // Create a client with a URL
+/// let client = Client(URL(string: "https://api.example.com")!)
+///
+/// // Create a client with a string literal
+/// let client = Client("https://api.example.com")
+///
+/// // Create a client with components
+/// let client = Client(
+///     scheme: "https",
+///     host: "api.example.com",
+///     port: 443,
+///     path: "/v1"
+/// )
+///
+/// // Perform a request
+/// let response = try await client.perform(GetUserRequest(id: "123"))
+/// ```
+///
+/// ## Configuration
+///
+/// You can customize the client's behavior by modifying its properties:
+///
+/// ```swift
+/// var client = Client("https://api.example.com")
+/// client.encoder.dateEncodingStrategy = .iso8601
+/// client.decoder.dateDecodingStrategy = .iso8601
+/// client.logger = CustomLogger()
+/// client.middlewares = [AuthenticationMiddleware()]
+/// client.interceptors = [RetryInterceptor()]
+/// ```
+public struct Client: HttpClient, Sendable {
+    /// The base URL for all requests made by this client.
+    ///
+    /// This URL is used as the foundation for all requests. Individual request paths
+    /// are appended to this base URL to form the complete request URL.
+    public let baseUrl: URL
 
-public extension Client {
-    var scheme: String { "https" }
-    var port: Int? { nil }
-    var accessTokenProvider: AccessTokenProvider? { nil }
-    var jsonDecoder: JSONDecoder { .init() }
-    var logger: ClientLogger? { .default(identifier: host) }
+    /// The JSON encoder used for encoding request bodies.
+    ///
+    /// This encoder is used when request bodies need to be serialized to JSON.
+    /// You can customize encoding behavior by modifying this property.
+    public var encoder: JSONEncoder = .init()
 
-    func perform<T: Decodable>(
-        _ request: some HttpRequest,
-        onProgress: ((_ progress: Progress) -> Void)? = nil
-    ) async throws -> T {
-        let data: Data = try await send(request, onProgress: onProgress)
-        return try jsonDecoder.decode(T.self, from: data)
+    /// The JSON decoder used for decoding response bodies.
+    ///
+    /// This decoder is used when response bodies need to be deserialized from JSON.
+    /// You can customize decoding behavior by modifying this property.
+    public var decoder: JSONDecoder = .init()
+
+    /// The logger used for logging request and response information.
+    ///
+    /// By default, this is set to `ClientLogger.default`, which provides
+    /// comprehensive logging using the system logger. Set to `nil` to disable logging.
+    public var logger: ClientLogger? = .default
+
+    /// An array of middleware that can modify requests before they are sent.
+    ///
+    /// Middleware is executed in the order they appear in this array. Each middleware
+    /// can modify the request (e.g., add headers, modify the body, etc.).
+    public var middlewares: [Middleware] = []
+
+    /// An array of interceptors that can modify responses after they are received.
+    ///
+    /// Interceptors are executed in the order they appear in this array. Each interceptor
+    /// can modify the response data or response object.
+    public var interceptors: [Interceptor] = []
+
+    /// Creates a client with the specified base URL.
+    ///
+    /// - Parameter baseUrl: The base URL for all requests made by this client
+    public init(_ baseUrl: URL) {
+        self.baseUrl = baseUrl
     }
 
-    func performRaw(
-        _ request: some HttpRequest,
-        onProgress: ((_ progress: Progress) -> Void)? = nil
-    ) async throws -> Data {
-        try await send(request, onProgress: onProgress)
+    /// Creates a client with the specified URL string.
+    ///
+    /// This initializer creates a URL from the provided string and initializes the client.
+    /// The string must be a valid URL format.
+    ///
+    /// - Parameter string: A static string representing the base URL
+    public init(_ string: StaticString) {
+        self.baseUrl = URL(string: "\(string)")!
     }
 
-    func perform(
-        _ request: some HttpRequest,
-        onProgress: ((_ progress: Progress) -> Void)? = nil
-    ) async throws {
-        try await send(request, onProgress: onProgress)
-    }
-    
-    @discardableResult
-    private func send(
-        _ request: some HttpRequest,
-        context: HttpRequestContext = .init(),
-        onProgress: ((_ progress: Progress) -> Void)? = nil
-    ) async throws -> Data {
-        logger?.logProgress(request: request, from: self)
-        let performer: HttpRequestPerformer = .init(client: self)
-        let handler: HttpRequestResultHandler = .init()
-        let (data, response) = try await performer.perform(request, onProgress: onProgress)
-        let behavior: ResultBehavior = handler.handle(response: response, data: data, for: request)
-        switch behavior {
-        case let .throwError(error):
-            logger?.logError(receivedData: data, for: request, from: self)
-            throw error
-        case let .decodeData(data):
-            logger?.logSuccess(receivedData: data, for: request, from: self)
-            return data
-        case .refreshAccessToken:
-            if let accessTokenProvider, context.shouldRetryOnFail {
-                logger?.logRefreshToken(receivedData: data, for: request, from: self)
-                try await accessTokenProvider.refreshAccessToken()
-                return try await send(request, context: .init(shouldRetryOnFail: false))
-            }
-            logger?.logError(receivedData: data, for: request, from: self)
-            throw ResponseCode(rawValue: response.statusCode) ?? ClientError.refreshAccessTokenFailed
+    /// Creates a client with URL components.
+    ///
+    /// This initializer allows you to specify the individual components of the URL.
+    /// If the URL cannot be constructed from the provided components, the initializer
+    /// returns `nil`.
+    ///
+    /// - Parameters:
+    ///   - scheme: The URL scheme (e.g., "https", "http")
+    ///   - host: The host name or IP address
+    ///   - port: The port number (optional, defaults to the standard port for the scheme)
+    ///   - path: The path component (optional, defaults to empty string)
+    /// - Returns: A configured client, or `nil` if the URL cannot be constructed
+    public init?(
+        scheme: String = "https",
+        host: String,
+        port: Int? = nil,
+        path: String = ""
+    ) {
+        guard let url = URL(string: "\(scheme)://\(host)\(port.map { ":\($0)" } ?? "")\(path)")
+        else {
+            return nil
         }
+        self.baseUrl = url
     }
 }

@@ -206,6 +206,100 @@ GET https://api.example.com/search?query=swift&page=1&limit=20
 
 </details>
 
+## HTTP Body
+
+NetworkKit automatically handles HTTP body serialization for your requests. Simply include a `body` property in your request struct, and it will be serialized according to the `HttpBody` protocol implementation.
+
+The `HttpBody` protocol defines how your data should be serialized for HTTP requests. NetworkKit provides default implementations for common types like `Codable` objects (which are serialized as JSON) and `Data` (which are sent as binary data).
+
+### JSON Body
+
+```swift
+@Post("/users")
+struct CreateUserRequest {
+    let body: User
+}
+
+struct User: HttpBody {
+    let name: String
+    let email: String
+    let age: Int
+}
+```
+
+<details>
+<summary>Click to see the generated request</summary>
+
+```http
+POST https://api.example.com/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "age": 30
+}
+```
+
+</details>
+
+### Data Body
+
+For binary data, you can use `Data` directly as the body type:
+
+```swift
+@Post("/upload")
+struct UploadDataRequest {
+    let body: Data
+}
+```
+
+<details>
+<summary>Click to see the generated request</summary>
+
+```http
+POST https://api.example.com/upload
+Content-Type: application/octet-stream
+
+[Binary data]
+```
+
+</details>
+
+### Custom Body Types
+
+You can also create custom body types that conform to `HttpBody`:
+
+```swift
+struct CustomBody: HttpBody {
+    let content: String
+    
+    func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        let data = content.data(using: .utf8) ?? Data()
+        request.httpBody = data
+        request.setValue("text/plain", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+@Post("/custom")
+struct CustomRequest {
+    let body: CustomBody
+}
+```
+
+<details>
+<summary>Click to see the generated request</summary>
+
+```http
+POST https://api.example.com/custom
+Content-Type: text/plain
+
+Hello, World!
+```
+
+</details>
+
 ## File Uploads
 
 ### Multipart Form

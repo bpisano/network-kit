@@ -36,7 +36,7 @@ import Foundation
 /// - Parameter request: The URLRequest to modify
 /// - Parameter encoder: The JSONEncoder to use for encoding (if applicable)
 /// - Throws: An error if the body cannot be properly encoded or set
-public protocol HttpBody {
+public protocol HttpBody: Encodable {
     /// Modifies the given URLRequest with the body data.
     ///
     /// This method is responsible for setting the `httpBody` property and any
@@ -99,5 +99,13 @@ public struct EmptyBody: HttpBody {
     ///   - encoder: The JSONEncoder (unused)
     public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
         // Empty body - no modification needed
+    }
+}
+
+extension Data: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        request.httpBody = self
+        request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(self.count)", forHTTPHeaderField: "Content-Length")
     }
 }

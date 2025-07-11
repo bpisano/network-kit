@@ -1,12 +1,13 @@
 # NetworkKit
 
-A modern, type-safe networking library for Swift with async/await support.
+A modern, type-safe networking library for Swift.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Request Performing](#request-performing)
+  - [Request Lifecycle](#request-lifecycle)
   - [Decoded Responses](#decoded-responses)
   - [Empty Responses](#empty-responses)
   - [Raw Data Responses](#raw-data-responses)
@@ -80,6 +81,17 @@ let user = response.data
 ## Request Performing
 
 NetworkKit provides several methods for performing requests, each suited for different use cases:
+
+### Request Lifecycle
+
+![Request Lifecycle](.github/lifecycle.png)
+
+When you call `perform` on a client, the request goes through several well-defined stages:
+
+1. **Middleware Processing:** Before the request is sent, it is passed through a chain of middleware. Each middleware can modify the request (for example, to add authentication headers, logging, or custom logic).
+2. **Sending the Request:** After all middleware have been applied, the request is sent to the server.
+3. **Interceptor Processing:** Once a response is received, it is passed through a chain of interceptors. Interceptors can inspect or modify the response, handle errors, or implement retry logic.
+4. **Completion:** After all interceptors have run, the final result is returned to the user.
 
 ### Decoded Responses
 

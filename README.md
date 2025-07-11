@@ -151,7 +151,7 @@ struct CreateUserRequest {
     let body: User
 }
 
-struct User: Codable {
+struct User: HttpBody {
     let name: String
     let email: String
 }

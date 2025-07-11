@@ -2,6 +2,29 @@
 
 A modern, type-safe networking library for Swift with async/await support.
 
+## Table of Contents
+
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Request Types](#request-types)
+  - [GET Request](#get-request)
+  - [POST Request with Body](#post-request-with-body)
+  - [PUT Request with Path Parameters](#put-request-with-path-parameters)
+  - [DELETE Request](#delete-request)
+- [Path and Query Parameters](#path-and-query-parameters)
+  - [Path Parameters](#path-parameters)
+  - [Query Parameters](#query-parameters)
+- [HTTP Body](#http-body)
+  - [JSON Body](#json-body)
+  - [Data Body](#data-body)
+  - [Custom Body Types](#custom-body-types)
+- [File Uploads](#file-uploads)
+  - [Multipart Form](#multipart-form)
+- [Middleware](#middleware)
+- [Interceptors](#interceptors)
+- [Custom Logging](#custom-logging)
+- [Progress Tracking](#progress-tracking)
+
 ## Installation
 
 Add the following dependency to your `Package.swift` file:

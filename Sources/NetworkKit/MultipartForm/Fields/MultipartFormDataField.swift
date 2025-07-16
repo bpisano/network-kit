@@ -17,13 +17,13 @@ import Foundation
 /// ```swift
 /// let form = MultipartForm {
 ///     DataField(
-///         named: "avatar",
+///         "avatar",
 ///         data: imageData,
 ///         mimeType: .jpegImage,
 ///         fileName: "avatar.jpg"
 ///     )
 ///     DataField(
-///         named: "document",
+///         "document",
 ///         data: pdfData,
 ///         mimeType: .pdfDocument,
 ///         fileName: "report.pdf"
@@ -74,7 +74,7 @@ public struct DataField: MultipartFormField {
     ///   - mimeType: The MIME type of the data (e.g., .jpegImage, .pdfDocument)
     ///   - fileName: The optional filename for the uploaded data
     public init(
-        named name: String,
+        _ name: String,
         data: Data,
         mimeType: MimeType,
         fileName: String? = nil

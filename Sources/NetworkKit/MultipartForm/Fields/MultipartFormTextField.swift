@@ -16,9 +16,9 @@ import Foundation
 ///
 /// ```swift
 /// let form = MultipartForm {
-///     TextField(named: "username", value: "john_doe")
-///     TextField(named: "email", value: "john@example.com")
-///     TextField(named: "description", value: "User profile")
+///     TextField("username", value: "john_doe")
+///     TextField("email", value: "john@example.com")
+///     TextField("description", value: "User profile")
 /// }
 /// ```
 ///
@@ -53,7 +53,7 @@ public struct MultipartFormTextField: MultipartFormField {
     ///   - name: The name of the form field (used in Content-Disposition header)
     ///   - value: The string value to send as the field content
     public init(
-        named name: String,
+        _ name: String,
         value: String
     ) {
         self.name = name

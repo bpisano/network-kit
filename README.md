@@ -423,15 +423,15 @@ NetworkKit supports multipart form data for file uploads. You can mix files and 
 struct UploadRequest {
     let body: MultipartForm
     
-    init(fileData: Data, fileName: String, description: String) {
+    init(imageData: Data, description: String) {
         self.body = MultipartForm {
             DataField(
-                named: "file",
-                data: fileData,
+                "file",
+                data: imageData,
                 mimeType: .jpegImage,
-                fileName: fileName
+                fileName: "photo.jpg"
             )
-            TextField(named: "description", value: description)
+            TextField("description", value: description)
         }
     }
 }

@@ -33,19 +33,19 @@ public protocol HttpClient {
     var baseUrl: URL { get }
 
     /// The JSON encoder used for encoding request bodies.
-    var encoder: JSONEncoder { get }
+    var encoder: JSONEncoder { get set }
 
     /// The JSON decoder used for decoding response bodies.
-    var decoder: JSONDecoder { get }
+    var decoder: JSONDecoder { get set }
 
     /// The logger used for logging request and response information.
-    var logger: ClientLogger? { get }
+    var logger: ClientLogger? { get set }
 
     /// An array of middleware that can modify requests before they are sent.
-    var middlewares: [Middleware] { get }
+    var middlewares: [Middleware] { get set }
 
     /// An array of interceptors that can modify responses after they are received.
-    var interceptors: [Interceptor] { get }
+    var interceptors: [Interceptor] { get set }
 }
 
 extension HttpClient {

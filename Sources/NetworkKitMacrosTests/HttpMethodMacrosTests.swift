@@ -5,373 +5,414 @@
 //  Created by Benjamin Pisano on 07/07/2025.
 //
 
+import NetworkKitMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import Testing
-
-#if canImport(NetworkKitMacros)
-    import NetworkKitMacros
-#endif
 
 @Suite("Http Method Macros")
 struct MacroTests {
     @Test
     func testGetMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Get("/books")
-                struct GetBook {
+        assertMacroExpansion(
+            """
+            @Get("/books")
+            struct GetBook {
+            }
+            """,
+            expandedSource: """
+                struct GetBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .get
+                    var queryParameters: [QueryParameter] {
+                        [
+                            
+                        ]
+                    }
                 }
                 """,
-                expandedSource: """
-                    struct GetBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .get
-                    }
-                    """,
-                macros: ["Get": GetMacro.self]
-            )
-        #endif
+            macros: ["Get": GetMacro.self]
+        )
     }
 
     @Test
     func testGetMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Get("/books")
-                public struct GetBook {
+        assertMacroExpansion(
+            """
+            @Get("/books")
+            public struct GetBook {
+            }
+            """,
+            expandedSource: """
+                public struct GetBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .get
+                    public var queryParameters: [QueryParameter] {
+                        [
+                            
+                        ]
+                    }
                 }
                 """,
-                expandedSource: """
-                    public struct GetBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .get
+            macros: ["Get": GetMacro.self]
+        )
+    }
+
+    @Test
+    func testGetMacroWithQueryProperties() {
+        assertMacroExpansion(
+            """
+            @Get("/books")
+            struct GetBook {
+                @Query
+                var search: String
+                
+                @Query("page_size")
+                var pageSize: String
+            }
+            """,
+            expandedSource: """
+                struct GetBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .get
+                    var queryParameters: [QueryParameter] {
+                        [
+                            _querySearch,
+                            _queryPageSize
+                        ]
                     }
-                    """,
-                macros: ["Get": GetMacro.self]
-            )
-        #endif
+                    var search: String
+
+                    var _querySearch: QueryParameter {
+                        QueryParameter(key: "search", value: search)
+                    }
+                    
+                    var pageSize: String
+
+                    var _queryPageSize: QueryParameter {
+                        QueryParameter(key: "page_size", value: pageSize)
+                    }
+                }
+                """,
+            macros: ["Get": GetMacro.self, "Query": QueryMacro.self]
+        )
+    }
+
+    @Test
+    func testGetMacroWithPublicQueryProperties() {
+        assertMacroExpansion(
+            """
+            @Get("/books")
+            public struct GetBook {
+                @Query
+                var search: String
+            }
+            """,
+            expandedSource: """
+                public struct GetBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .get
+                    public var queryParameters: [QueryParameter] {
+                        [
+                            _querySearch
+                        ]
+                    }
+                    var search: String
+
+                    var _querySearch: QueryParameter {
+                        QueryParameter(key: "search", value: search)
+                    }
+                }
+                """,
+            macros: ["Get": GetMacro.self, "Query": QueryMacro.self]
+        )
     }
 
     @Test
     func testPostMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Post("/books")
-                struct CreateBook {
+        assertMacroExpansion(
+            """
+            @Post("/books")
+            struct CreateBook {
+            }
+            """,
+            expandedSource: """
+                struct CreateBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .post
                 }
                 """,
-                expandedSource: """
-                    struct CreateBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .post
-                    }
-                    """,
-                macros: ["Post": PostMacro.self]
-            )
-        #endif
+            macros: ["Post": PostMacro.self]
+        )
     }
 
     @Test
     func testPostMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Post("/books")
-                public struct CreateBook {
+        assertMacroExpansion(
+            """
+            @Post("/books")
+            public struct CreateBook {
+            }
+            """,
+            expandedSource: """
+                public struct CreateBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .post
                 }
                 """,
-                expandedSource: """
-                    public struct CreateBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .post
-                    }
-                    """,
-                macros: ["Post": PostMacro.self]
-            )
-        #endif
+            macros: ["Post": PostMacro.self]
+        )
     }
 
     @Test
     func testPutMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Put("/books/1")
-                struct UpdateBook {
+        assertMacroExpansion(
+            """
+            @Put("/books/1")
+            struct UpdateBook {
+            }
+            """,
+            expandedSource: """
+                struct UpdateBook: HttpRequest {
+                    let path: String = "/books/1"
+                    let method: HttpMethod = .put
                 }
                 """,
-                expandedSource: """
-                    struct UpdateBook: HttpRequest {
-                        let path: String = "/books/1"
-                        let method: HttpMethod = .put
-                    }
-                    """,
-                macros: ["Put": PutMacro.self]
-            )
-        #endif
+            macros: ["Put": PutMacro.self]
+        )
     }
 
     @Test
     func testPutMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Put("/books/1")
-                public struct UpdateBook {
+        assertMacroExpansion(
+            """
+            @Put("/books/1")
+            public struct UpdateBook {
+            }
+            """,
+            expandedSource: """
+                public struct UpdateBook: HttpRequest {
+                    public let path: String = "/books/1"
+                    public let method: HttpMethod = .put
                 }
                 """,
-                expandedSource: """
-                    public struct UpdateBook: HttpRequest {
-                        public let path: String = "/books/1"
-                        public let method: HttpMethod = .put
-                    }
-                    """,
-                macros: ["Put": PutMacro.self]
-            )
-        #endif
+            macros: ["Put": PutMacro.self]
+        )
     }
 
     @Test
     func testPatchMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Patch("/books/1")
-                struct PartialUpdateBook {
+        assertMacroExpansion(
+            """
+            @Patch("/books/1")
+            struct PartialUpdateBook {
+            }
+            """,
+            expandedSource: """
+                struct PartialUpdateBook: HttpRequest {
+                    let path: String = "/books/1"
+                    let method: HttpMethod = .patch
                 }
                 """,
-                expandedSource: """
-                    struct PartialUpdateBook: HttpRequest {
-                        let path: String = "/books/1"
-                        let method: HttpMethod = .patch
-                    }
-                    """,
-                macros: ["Patch": PatchMacro.self]
-            )
-        #endif
+            macros: ["Patch": PatchMacro.self]
+        )
     }
 
     @Test
     func testPatchMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Patch("/books/1")
-                public struct PartialUpdateBook {
+        assertMacroExpansion(
+            """
+            @Patch("/books/1")
+            public struct PartialUpdateBook {
+            }
+            """,
+            expandedSource: """
+                public struct PartialUpdateBook: HttpRequest {
+                    public let path: String = "/books/1"
+                    public let method: HttpMethod = .patch
                 }
                 """,
-                expandedSource: """
-                    public struct PartialUpdateBook: HttpRequest {
-                        public let path: String = "/books/1"
-                        public let method: HttpMethod = .patch
-                    }
-                    """,
-                macros: ["Patch": PatchMacro.self]
-            )
-        #endif
+            macros: ["Patch": PatchMacro.self]
+        )
     }
 
     @Test
     func testDeleteMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Delete("/books/1")
-                struct DeleteBook {
+        assertMacroExpansion(
+            """
+            @Delete("/books/1")
+            struct DeleteBook {
+            }
+            """,
+            expandedSource: """
+                struct DeleteBook: HttpRequest {
+                    let path: String = "/books/1"
+                    let method: HttpMethod = .delete
                 }
                 """,
-                expandedSource: """
-                    struct DeleteBook: HttpRequest {
-                        let path: String = "/books/1"
-                        let method: HttpMethod = .delete
-                    }
-                    """,
-                macros: ["Delete": DeleteMacro.self]
-            )
-        #endif
+            macros: ["Delete": DeleteMacro.self]
+        )
     }
 
     @Test
     func testDeleteMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Delete("/books/1")
-                public struct DeleteBook {
+        assertMacroExpansion(
+            """
+            @Delete("/books/1")
+            public struct DeleteBook {
+            }
+            """,
+            expandedSource: """
+                public struct DeleteBook: HttpRequest {
+                    public let path: String = "/books/1"
+                    public let method: HttpMethod = .delete
                 }
                 """,
-                expandedSource: """
-                    public struct DeleteBook: HttpRequest {
-                        public let path: String = "/books/1"
-                        public let method: HttpMethod = .delete
-                    }
-                    """,
-                macros: ["Delete": DeleteMacro.self]
-            )
-        #endif
+            macros: ["Delete": DeleteMacro.self]
+        )
     }
 
     @Test
     func testOptionsMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Options("/books")
-                struct OptionsBook {
+        assertMacroExpansion(
+            """
+            @Options("/books")
+            struct OptionsBook {
+            }
+            """,
+            expandedSource: """
+                struct OptionsBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .options
                 }
                 """,
-                expandedSource: """
-                    struct OptionsBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .options
-                    }
-                    """,
-                macros: ["Options": OptionsMacro.self]
-            )
-        #endif
+            macros: ["Options": OptionsMacro.self]
+        )
     }
 
     @Test
     func testOptionsMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Options("/books")
-                public struct OptionsBook {
+        assertMacroExpansion(
+            """
+            @Options("/books")
+            public struct OptionsBook {
+            }
+            """,
+            expandedSource: """
+                public struct OptionsBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .options
                 }
                 """,
-                expandedSource: """
-                    public struct OptionsBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .options
-                    }
-                    """,
-                macros: ["Options": OptionsMacro.self]
-            )
-        #endif
+            macros: ["Options": OptionsMacro.self]
+        )
     }
 
     @Test
     func testHeadMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Head("/books")
-                struct HeadBook {
+        assertMacroExpansion(
+            """
+            @Head("/books")
+            struct HeadBook {
+            }
+            """,
+            expandedSource: """
+                struct HeadBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .head
                 }
                 """,
-                expandedSource: """
-                    struct HeadBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .head
-                    }
-                    """,
-                macros: ["Head": HeadMacro.self]
-            )
-        #endif
+            macros: ["Head": HeadMacro.self]
+        )
     }
 
     @Test
     func testHeadMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Head("/books")
-                public struct HeadBook {
+        assertMacroExpansion(
+            """
+            @Head("/books")
+            public struct HeadBook {
+            }
+            """,
+            expandedSource: """
+                public struct HeadBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .head
                 }
                 """,
-                expandedSource: """
-                    public struct HeadBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .head
-                    }
-                    """,
-                macros: ["Head": HeadMacro.self]
-            )
-        #endif
+            macros: ["Head": HeadMacro.self]
+        )
     }
 
     @Test
     func testTraceMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Trace("/books")
-                struct TraceBook {
+        assertMacroExpansion(
+            """
+            @Trace("/books")
+            struct TraceBook {
+            }
+            """,
+            expandedSource: """
+                struct TraceBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .trace
                 }
                 """,
-                expandedSource: """
-                    struct TraceBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .trace
-                    }
-                    """,
-                macros: ["Trace": TraceMacro.self]
-            )
-        #endif
+            macros: ["Trace": TraceMacro.self]
+        )
     }
 
     @Test
     func testTraceMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Trace("/books")
-                public struct TraceBook {
+        assertMacroExpansion(
+            """
+            @Trace("/books")
+            public struct TraceBook {
+            }
+            """,
+            expandedSource: """
+                public struct TraceBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .trace
                 }
                 """,
-                expandedSource: """
-                    public struct TraceBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .trace
-                    }
-                    """,
-                macros: ["Trace": TraceMacro.self]
-            )
-        #endif
+            macros: ["Trace": TraceMacro.self]
+        )
     }
 
     @Test
     func testConnectMacroExpansion() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Connect("/books")
-                struct ConnectBook {
+        assertMacroExpansion(
+            """
+            @Connect("/books")
+            struct ConnectBook {
+            }
+            """,
+            expandedSource: """
+                struct ConnectBook: HttpRequest {
+                    let path: String = "/books"
+                    let method: HttpMethod = .connect
                 }
                 """,
-                expandedSource: """
-                    struct ConnectBook: HttpRequest {
-                        let path: String = "/books"
-                        let method: HttpMethod = .connect
-                    }
-                    """,
-                macros: ["Connect": ConnectMacro.self]
-            )
-        #endif
+            macros: ["Connect": ConnectMacro.self]
+        )
     }
 
     @Test
     func testConnectMacroExpansionWithPublicStruct() {
-        #if canImport(NetworkKitMacros)
-            assertMacroExpansion(
-                """
-                @Connect("/books")
-                public struct ConnectBook {
+        assertMacroExpansion(
+            """
+            @Connect("/books")
+            public struct ConnectBook {
+            }
+            """,
+            expandedSource: """
+                public struct ConnectBook: HttpRequest {
+                    public let path: String = "/books"
+                    public let method: HttpMethod = .connect
                 }
                 """,
-                expandedSource: """
-                    public struct ConnectBook: HttpRequest {
-                        public let path: String = "/books"
-                        public let method: HttpMethod = .connect
-                    }
-                    """,
-                macros: ["Connect": ConnectMacro.self]
-            )
-        #endif
+            macros: ["Connect": ConnectMacro.self]
+        )
     }
 }

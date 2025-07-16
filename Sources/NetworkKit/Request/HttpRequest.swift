@@ -17,10 +17,10 @@ import Foundation
 ///     @Path
 ///     var id: String
 ///
-///     @Query
+///     @_Query
 ///     var page: Int
 ///
-///     @Query
+///     @_Query
 ///     var limit: Int
 /// }
 /// ```
@@ -35,10 +35,10 @@ import Foundation
 ///     @Path
 ///     var id: String
 ///
-///     @Query
+///     @_Query
 ///     var page: Int
 ///
-///     @Query
+///     @_Query
 ///     var limit: Int
 /// }
 /// ```
@@ -68,6 +68,11 @@ public protocol HttpRequest {
     ///
     /// Common values include `.get`, `.post`, `.put`, `.delete`, etc.
     var method: HttpMethod { get }
+
+    /// The query parameters to include in the request.
+    ///
+    /// These parameters will be encoded in the URL as query string parameters.
+    var queryParameters: [QueryParameter] { get }
 
     /// The body of the HTTP request.
     ///
@@ -107,6 +112,10 @@ public protocol HttpRequest {
 }
 
 extension HttpRequest {
+    public var queryParameters: [QueryParameter] {
+        []
+    }
+
     public var body: EmptyBody {
         .init()
     }

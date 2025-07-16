@@ -23,16 +23,16 @@
 /// ```swift
 /// @Get("/users")
 /// struct GetUsersRequest {
-///     @Query
+///     @_Query
 ///     var page: Int
 ///
-///     @Query
+///     @_Query
 ///     var limit: Int
 /// }
 /// ```
 ///
 /// - Parameter path: The path for the HTTP request
-@attached(member, names: named(path), named(method))
+@attached(member, names: named(path), named(method), named(queryParameters))
 @attached(extension, conformances: HttpRequest)
 public macro Get(_ path: String) = #externalMacro(module: "NetworkKitMacros", type: "GetMacro")
 

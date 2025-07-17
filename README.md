@@ -107,12 +107,11 @@ GET https://api.example.com/users?page=1&limit=20
 ```swift
 @Post("/users")
 struct CreateUserRequest {
+    @Body
     struct Body: HttpBody {
         let name: String
         let email: String
     }
-
-    let body: Body
 }
 ```
 
@@ -139,7 +138,11 @@ struct UpdateUserRequest {
     @Path
     var id: String
     
-    let body: User
+    @Body
+    struct Body: HttpBody {
+        let name: String
+        let email: String
+    }
 }
 ```
 
@@ -185,7 +188,11 @@ struct PatchUserRequest {
     @Path
     var id: String
     
-    let body: UserPatch
+    @Body
+    struct Body: HttpBody {
+        let name: String?
+        let email: String?
+    }
 }
 ```
 

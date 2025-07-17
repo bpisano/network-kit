@@ -358,20 +358,20 @@ GET https://api.example.com/search?q=swift
 
 NetworkKit automatically handles HTTP body serialization for your requests. Simply include a `body` property in your request struct, and it will be serialized according to the `HttpBody` protocol implementation.
 
-The `HttpBody` protocol defines how your data should be serialized for HTTP requests. NetworkKit provides default implementations for common types like `Codable` objects (which are serialized as JSON) and `Data` (which are sent as binary data).
+The `HttpBody` protocol defines how your data should be serialized for HTTP requests. NetworkKit provides default implementations for common types (which are serialized as JSON) and `Data` (which are sent as binary data).
 
 #### JSON
+
+For `Encodable` types, NetworkKit automatically serializes the body as JSON. You can use the `@Body` macro to define your request body:
 
 ```swift
 @Post("/users")
 struct CreateUserRequest {
-    struct Body: HttpBody {
+    @Body
+    struct Body {
         let name: String
         let email: String
-        let age: Int
     }
-
-    let body: Body
 }
 ```
 

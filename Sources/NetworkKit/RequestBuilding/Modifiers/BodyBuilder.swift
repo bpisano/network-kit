@@ -12,6 +12,7 @@ struct BodyBuilder: RequestModifier {
     let jsonEncoder: JSONEncoder
 
     func modify(_ urlRequest: inout URLRequest) throws {
+        print(request.body)
         try request.body.modify(&urlRequest, using: jsonEncoder)
     }
 }

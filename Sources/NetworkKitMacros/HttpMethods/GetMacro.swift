@@ -33,11 +33,19 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
         // Find all @Query-annotated properties
         let queryIdentifiers = findQueryProperties(in: declaration)
 
+        // Find the @Body struct
+        let bodyType = findBodyType(in: declaration)
+
+        // Check if there's already a body property defined
+        let hasExistingBody = hasExistingBodyProperty(in: declaration)
+
         // Generate the required declarations
         return generateDeclarations(
             path: path,
             accessModifier: accessModifier,
-            queryIdentifiers: queryIdentifiers
+            queryIdentifiers: queryIdentifiers,
+            bodyType: bodyType,
+            hasExistingBody: hasExistingBody
         )
     }
 
@@ -121,11 +129,45 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
         return false
     }
 
+    /// Finds the name of the nested type annotated with @Body
+    private static func findBodyType(in declaration: some DeclGroupSyntax) -> String? {
+        for member in declaration.memberBlock.members {
+            guard let structDecl = member.decl.as(StructDeclSyntax.self) else { continue }
+
+            for attr in structDecl.attributes {
+                guard let attribute = attr.as(AttributeSyntax.self),
+                    attribute.attributeName.trimmed.description == "Body"
+                else { continue }
+
+                return structDecl.name.text
+            }
+        }
+
+        return nil
+    }
+
+    /// Checks if the struct already has a body property defined
+    private static func hasExistingBodyProperty(in declaration: some DeclGroupSyntax) -> Bool {
+        for member in declaration.memberBlock.members {
+            guard let varDecl = member.decl.as(VariableDeclSyntax.self),
+                let binding = varDecl.bindings.first,
+                let pattern = binding.pattern.as(IdentifierPatternSyntax.self)
+            else { continue }
+
+            if pattern.identifier.text == "body" {
+                return true
+            }
+        }
+        return false
+    }
+
     /// Generates the required declarations for the HTTP request
     private static func generateDeclarations(
         path: String,
         accessModifier: String,
-        queryIdentifiers: [String]
+        queryIdentifiers: [String],
+        bodyType: String?,
+        hasExistingBody: Bool
     ) -> [DeclSyntax] {
         let pathDecl = DeclSyntax(stringLiteral: "\(accessModifier)let path: String = \"\(path)\"")
         let methodDecl = DeclSyntax(stringLiteral: "\(accessModifier)let method: HttpMethod = .get")
@@ -134,7 +176,19 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
             queryIdentifiers: queryIdentifiers
         )
 
-        return [pathDecl, methodDecl, queryParametersDecl]
+        var declarations: [DeclSyntax] = [pathDecl, methodDecl, queryParametersDecl]
+
+        // Add body property if there's a body type
+        if let bodyType = bodyType {
+            let bodyDecl = DeclSyntax(stringLiteral: "\(accessModifier)let body: \(bodyType)")
+            declarations.append(bodyDecl)
+        } else if !hasExistingBody {
+            // Add default empty body if no body type is specified and no existing body property
+            let emptyBodyDecl = DeclSyntax(stringLiteral: "\(accessModifier)let body = EmptyBody()")
+            declarations.append(emptyBodyDecl)
+        }
+
+        return declarations
     }
 
     /// Generates the queryParameters computed property declaration
@@ -149,7 +203,7 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
         return """
             \(raw: accessModifier)var queryParameters: [QueryParameter] {
                 [
-                    \(raw: queryParamLines.joined(separator: ",\n                "))
+                    \(raw: queryParamLines.joined(separator: ",\n"))
                 ]
             }
             """

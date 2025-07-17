@@ -22,5 +22,6 @@ struct NetworkKitMacros: CompilerPlugin {
         TraceMacro.self,
         ConnectMacro.self,
         QueryMacro.self,
+        BodyMacro.self,
     ]
 }

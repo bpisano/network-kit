@@ -8,11 +8,9 @@
 import NetworkKitMacros
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
-import Testing
+import XCTest
 
-@Suite("Query Macro")
-struct QueryMacroTests {
-    @Test
+final class QueryMacroTests: XCTestCase {
     func testQueryMacroBasicExpansion() {
         assertMacroExpansion(
             """
@@ -34,7 +32,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithCustomKey() {
         assertMacroExpansion(
             """
@@ -56,7 +53,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithExplicitStringType() {
         assertMacroExpansion(
             """
@@ -78,7 +74,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithMultipleProperties() {
         assertMacroExpansion(
             """
@@ -96,17 +91,17 @@ struct QueryMacroTests {
             expandedSource: """
                 struct TestRequest {
                     var search: String
-
+                
                     var _querySearch: QueryParameter {
                         QueryParameter(key: "search", value: search)
                     }
-                    
+                
                     var pageSize: String
-
+                
                     var _queryPageSize: QueryParameter {
                         QueryParameter(key: "page_size", value: pageSize)
                     }
-                    
+                
                     var filter: String
 
                     var _queryFilter: QueryParameter {
@@ -118,7 +113,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithSingleCharacterProperty() {
         assertMacroExpansion(
             """
@@ -140,7 +134,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithCamelCaseProperty() {
         assertMacroExpansion(
             """
@@ -162,7 +155,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithSnakeCaseKey() {
         assertMacroExpansion(
             """
@@ -184,7 +176,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithEmptyStringKey() {
         assertMacroExpansion(
             """
@@ -206,7 +197,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithSpecialCharactersInKey() {
         assertMacroExpansion(
             """
@@ -228,7 +218,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroErrorOnNonVariableDeclaration() {
         assertMacroExpansion(
             """
@@ -253,7 +242,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroErrorOnNonStringType() {
         assertMacroExpansion(
             """
@@ -275,7 +263,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithOptionalStringType() {
         assertMacroExpansion(
             """
@@ -297,7 +284,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithInferredStringType() {
         assertMacroExpansion(
             """
@@ -308,8 +294,8 @@ struct QueryMacroTests {
             """,
             expandedSource: """
                 struct TestRequest {
-                    var search: String = "default"
-
+                    var search = "default"
+                
                     var _querySearch: QueryParameter {
                         QueryParameter(key: "search", value: search)
                     }
@@ -319,7 +305,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithPublicProperty() {
         assertMacroExpansion(
             """
@@ -341,7 +326,6 @@ struct QueryMacroTests {
         )
     }
 
-    @Test
     func testQueryMacroWithPrivateProperty() {
         assertMacroExpansion(
             """

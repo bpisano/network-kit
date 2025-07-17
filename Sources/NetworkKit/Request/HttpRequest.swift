@@ -17,10 +17,10 @@ import Foundation
 ///     @Path
 ///     var id: String
 ///
-///     @_Query
+///     @Query
 ///     var page: Int
 ///
-///     @_Query
+///     @Query
 ///     var limit: Int
 /// }
 /// ```
@@ -35,10 +35,10 @@ import Foundation
 ///     @Path
 ///     var id: String
 ///
-///     @_Query
+///     @Query
 ///     var page: Int
 ///
-///     @_Query
+///     @Query
 ///     var limit: Int
 /// }
 /// ```
@@ -114,10 +114,6 @@ public protocol HttpRequest {
 extension HttpRequest {
     public var queryParameters: [QueryParameter] {
         []
-    }
-
-    public var body: EmptyBody {
-        .init()
     }
 
     public var timeout: TimeInterval {

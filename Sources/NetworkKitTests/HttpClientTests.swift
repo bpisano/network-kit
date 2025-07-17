@@ -48,10 +48,12 @@ struct HttpClientTests {
     @Test
     func testPostRequestWithBody() async throws {
         let newProduct = CreateProductRequest(
-            title: "Test Product",
-            description: "This is a test product description",
-            price: 99.99,
-            category: "electronics"
+            body: .init(
+                title: "Test Product",
+                description: "This is a test product description",
+                price: 99.99,
+                category: "electronics"
+            )
         )
         let response: Response<Product> = try await client.perform(newProduct)
         let product: Product = response.data
@@ -67,10 +69,12 @@ struct HttpClientTests {
     func testPutRequestWithPathParameterAndBody() async throws {
         let updateProduct = UpdateProductRequest(
             id: "1",
-            title: "Updated Product Title",
-            description: "Updated product description",
-            price: 149.99,
-            category: "electronics"
+            body: .init(
+                title: "Updated Product Title",
+                description: "Updated product description",
+                price: 149.99,
+                category: "electronics"
+            )
         )
         let response: Response<Product> = try await client.perform(updateProduct)
         let product: Product = response.data
@@ -220,18 +224,12 @@ private struct GetProductsWithFiltersRequest {
 
 @Post("/products/add")
 private struct CreateProductRequest {
-    let title: String
-    let description: String
-    let price: Double
-    let category: String
-
-    var body: CreateProductBody {
-        CreateProductBody(
-            title: title,
-            description: description,
-            price: price,
-            category: category
-        )
+    @Body
+    struct Body {
+        let title: String
+        let description: String
+        let price: Double
+        let category: String
     }
 }
 
@@ -240,18 +238,12 @@ private struct UpdateProductRequest {
     @Path
     var id: String
 
-    let title: String
-    let description: String
-    let price: Double
-    let category: String
-
-    var body: UpdateProductBody {
-        UpdateProductBody(
-            title: title,
-            description: description,
-            price: price,
-            category: category
-        )
+    @Body
+    struct Body {
+        let title: String
+        let description: String
+        let price: Double
+        let category: String
     }
 }
 
@@ -278,20 +270,4 @@ private struct ProductList: Codable, Equatable {
     let total: Int
     let skip: Int
     let limit: Int
-}
-
-// MARK: - Request Body Types
-
-private struct CreateProductBody: HttpBody {
-    let title: String
-    let description: String
-    let price: Double
-    let category: String
-}
-
-private struct UpdateProductBody: HttpBody {
-    let title: String
-    let description: String
-    let price: Double
-    let category: String
 }

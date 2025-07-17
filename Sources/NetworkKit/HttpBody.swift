@@ -86,26 +86,90 @@ extension HttpBody where Self: Encodable {
 /// }
 /// ```
 public struct EmptyBody: HttpBody {
-    /// Creates an empty body instance.
     public init() {}
 
-    /// Modifies the request with an empty body (no-op).
-    ///
-    /// Since this represents an empty body, this method doesn't modify the request.
-    /// The `httpBody` property remains unchanged.
-    ///
-    /// - Parameters:
-    ///   - request: The URLRequest to modify (unmodified)
-    ///   - encoder: The JSONEncoder (unused)
-    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
-        // Empty body - no modification needed
-    }
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {}
 }
+
+// MARK: - HttpBody Conformance
 
 extension Data: HttpBody {
     public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
         request.httpBody = self
         request.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")
         request.setValue("\(self.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension String: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        guard let data = self.data(using: .utf8) else {
+            throw NSError(
+                domain: "HttpBodyError",
+                code: 0,
+                userInfo: [NSLocalizedDescriptionKey: "Failed to convert String to Data"]
+            )
+        }
+        request.httpBody = data
+        request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension Int: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        let data = String(self).data(using: .utf8)!
+        request.httpBody = data
+        request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension Double: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        let data = String(self).data(using: .utf8)!
+        request.httpBody = data
+        request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension Float: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        let data = String(self).data(using: .utf8)!
+        request.httpBody = data
+        request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension Bool: HttpBody {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        let data = String(self).data(using: .utf8)!
+        request.httpBody = data
+        request.setValue("text/plain; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.setValue("\(data.count)", forHTTPHeaderField: "Content-Length")
+    }
+}
+
+extension Dictionary: HttpBody where Key == String, Value == String {}
+
+extension Array: HttpBody where Element: Encodable {}
+
+extension Set: HttpBody where Element: Encodable {}
+
+extension Optional: HttpBody where Wrapped: Encodable {
+    public func modify(_ request: inout URLRequest, using encoder: JSONEncoder) throws {
+        switch self {
+        case .some(let wrapped):
+            let encodedBody: Data = try encoder.encode(wrapped)
+            request.httpBody = encodedBody
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("\(encodedBody.count)", forHTTPHeaderField: "Content-Length")
+        case .none:
+            request.httpBody = nil
+            request.setValue(nil, forHTTPHeaderField: "Content-Type")
+            request.setValue(nil, forHTTPHeaderField: "Content-Length")
+        }
     }
 }

@@ -21,6 +21,8 @@ final class PostMacroTests: XCTestCase {
             expandedSource: """
                 struct CreateBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .post
@@ -50,6 +52,8 @@ final class PostMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct CreateBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -88,6 +92,8 @@ final class PostMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .post
@@ -124,6 +130,8 @@ final class PostMacroTests: XCTestCase {
                     var _queryForce: QueryParameter {
                         QueryParameter(key: "force", value: force)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -163,6 +171,8 @@ final class PostMacroTests: XCTestCase {
                         let name: String
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .post
@@ -194,6 +204,104 @@ final class PostMacroTests: XCTestCase {
             expandedSource: """
                 struct CreateBook {
                     let body: String = "existing body"
+
+                    typealias Response = Empty
+
+                    let path: String = "/books"
+
+                    let method: HttpMethod = .post
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension CreateBook: HttpRequest {
+                }
+                """,
+            macros: ["Post": PostMacro.self]
+        )
+    }
+
+    func testPostMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Post("/books", of: Book.self)
+            struct CreateBook {
+            }
+            """,
+            expandedSource: """
+                struct CreateBook {
+
+                    typealias Response = Book
+
+                    let path: String = "/books"
+
+                    let method: HttpMethod = .post
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension CreateBook: HttpRequest {
+                }
+                """,
+            macros: ["Post": PostMacro.self]
+        )
+    }
+
+    func testPostMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Post("/books", of: [Book].self)
+            public struct CreateBooks {
+            }
+            """,
+            expandedSource: """
+                public struct CreateBooks {
+
+                    typealias Response = [Book]
+
+                    public let path: String = "/books"
+
+                    public let method: HttpMethod = .post
+
+                    public var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    public let body = EmptyBody()
+                }
+
+                extension CreateBooks: HttpRequest {
+                }
+                """,
+            macros: ["Post": PostMacro.self]
+        )
+    }
+
+    func testPostMacroWithResponseTypeAndBodyProperty() {
+        assertMacroExpansion(
+            """
+            @Post("/books", of: Book.self)
+            struct CreateBook {
+                let body: CreateBookRequest
+            }
+            """,
+            expandedSource: """
+                struct CreateBook {
+                    let body: CreateBookRequest
+
+                    typealias Response = Book
 
                     let path: String = "/books"
 

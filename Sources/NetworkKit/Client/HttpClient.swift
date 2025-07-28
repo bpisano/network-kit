@@ -77,7 +77,7 @@ extension HttpClient {
     /// Performs an HTTP request and decodes the response to the specified type.
     ///
     /// This method sends the request, processes any middleware and interceptors,
-    /// and automatically decodes the response body to the specified `ServerResponse` type.
+    /// and automatically decodes the response body to the expected response type defined by the request.
     ///
     /// ## Usage
     ///
@@ -92,42 +92,17 @@ extension HttpClient {
     /// ```
     ///
     /// - Parameters:
-    ///   - request: The HTTP request to perform
-    ///   - onProgress: Optional closure called with progress updates during the request
-    /// - Returns: A `Response<ServerResponse>` containing the decoded data and response metadata
-    /// - Throws: An error if the request fails or the response cannot be decoded
-    public func perform<Request: HttpRequest, ServerResponse: Decodable>(
-        _ request: Request,
-        onProgress: ((Progress) -> Void)? = nil
-    ) async throws -> Response<ServerResponse> {
-        let (data, response) = try await send(request, onProgress: onProgress)
-        let serverData: ServerResponse = try decoder.decode(ServerResponse.self, from: data)
-        return .init(data: serverData, response: response)
-    }
-
-    /// Performs an HTTP request without expecting a response body.
-    ///
-    /// This method is useful for requests where you only care about the response status
-    /// and headers, not the body content (e.g., DELETE requests).
-    ///
-    /// ## Usage
-    ///
-    /// ```swift
-    /// try await client.perform(DeleteUserRequest(id: "123"))
-    /// ```
-    ///
-    /// - Parameters:
-    ///   - request: The HTTP request to perform
-    ///   - onProgress: Optional closure called with progress updates during the request
-    /// - Returns: An `EmptyResponse` containing only the response metadata
-    /// - Throws: An error if the request fails
-    @discardableResult
+    ///   - request: The HTTP request to perform. The request type must conform to `HttpRequest` and specify its expected response type.
+    ///   - onProgress: Optional closure called with progress updates during the request.
+    /// - Returns: A `Response<Request.Response>` containing the decoded data and response metadata.
+    /// - Throws: An error if the request fails or the response cannot be decoded.
     public func perform<Request: HttpRequest>(
         _ request: Request,
         onProgress: ((Progress) -> Void)? = nil
-    ) async throws -> EmptyResponse {
-        let (_, response) = try await send(request, onProgress: onProgress)
-        return .init(response: response)
+    ) async throws -> Response<Request.Response> {
+        let (data, response) = try await send(request, onProgress: onProgress)
+        let serverData: Request.Response = try decoder.decode(Request.Response.self, from: data)
+        return .init(data: serverData, response: response)
     }
 
     /// Performs an HTTP request and returns the raw response data.

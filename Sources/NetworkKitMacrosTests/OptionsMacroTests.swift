@@ -21,6 +21,8 @@ final class OptionsMacroTests: XCTestCase {
             expandedSource: """
                 struct OptionsBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .options
@@ -50,6 +52,8 @@ final class OptionsMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct OptionsBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -88,6 +92,8 @@ final class OptionsMacroTests: XCTestCase {
                         QueryParameter(key: "includeHidden", value: includeHidden)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .options
@@ -124,6 +130,8 @@ final class OptionsMacroTests: XCTestCase {
                     var _queryIncludeHidden: QueryParameter {
                         QueryParameter(key: "includeHidden", value: includeHidden)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -163,6 +171,8 @@ final class OptionsMacroTests: XCTestCase {
                         let scope: String
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .options
@@ -195,6 +205,8 @@ final class OptionsMacroTests: XCTestCase {
                 struct OptionsBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .options
@@ -207,6 +219,70 @@ final class OptionsMacroTests: XCTestCase {
                 }
 
                 extension OptionsBook: HttpRequest {
+                }
+                """,
+            macros: ["Options": OptionsMacro.self]
+        )
+    }
+
+    func testOptionsMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Options("/api/config", of: OptionsResponse.self)
+            struct ApiConfig {
+            }
+            """,
+            expandedSource: """
+                struct ApiConfig {
+
+                    typealias Response = OptionsResponse
+
+                    let path: String = "/api/config"
+
+                    let method: HttpMethod = .options
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension ApiConfig: HttpRequest {
+                }
+                """,
+            macros: ["Options": OptionsMacro.self]
+        )
+    }
+
+    func testOptionsMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Options("/api/config", of: [String].self)
+            public struct ApiConfig {
+                let body: OptionsData
+            }
+            """,
+            expandedSource: """
+                public struct ApiConfig {
+                    let body: OptionsData
+
+                    typealias Response = [String]
+
+                    public let path: String = "/api/config"
+
+                    public let method: HttpMethod = .options
+
+                    public var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension ApiConfig: HttpRequest {
                 }
                 """,
             macros: ["Options": OptionsMacro.self]

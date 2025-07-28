@@ -21,6 +21,8 @@ final class PutMacroTests: XCTestCase {
             expandedSource: """
                 struct UpdateBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .put
@@ -50,6 +52,8 @@ final class PutMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct UpdateBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -88,6 +92,8 @@ final class PutMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .put
@@ -124,6 +130,8 @@ final class PutMacroTests: XCTestCase {
                     var _queryForce: QueryParameter {
                         QueryParameter(key: "force", value: force)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -163,6 +171,8 @@ final class PutMacroTests: XCTestCase {
                         let name: String
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .put
@@ -195,7 +205,73 @@ final class PutMacroTests: XCTestCase {
                 struct UpdateBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
+
+                    let method: HttpMethod = .put
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension UpdateBook: HttpRequest {
+                }
+                """,
+            macros: ["Put": PutMacro.self]
+        )
+    }
+
+    func testPutMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Put("/books/:id", of: Book.self)
+            struct UpdateBook {
+            }
+            """,
+            expandedSource: """
+                struct UpdateBook {
+
+                    typealias Response = Book
+
+                    let path: String = "/books/:id"
+
+                    let method: HttpMethod = .put
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension UpdateBook: HttpRequest {
+                }
+                """,
+            macros: ["Put": PutMacro.self]
+        )
+    }
+
+    func testPutMacroWithResponseTypeAndBody() {
+        assertMacroExpansion(
+            """
+            @Put("/books/:id", of: Book.self)
+            struct UpdateBook {
+                let body: UpdateBookRequest
+            }
+            """,
+            expandedSource: """
+                struct UpdateBook {
+                    let body: UpdateBookRequest
+
+                    typealias Response = Book
+
+                    let path: String = "/books/:id"
 
                     let method: HttpMethod = .put
 

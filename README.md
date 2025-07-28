@@ -51,7 +51,7 @@ let client = Client("https://api.example.com")
 Requests define the API endpoints and parameters. They're reusable across all environments:
 
 ```swift
-@Get("/users/:id")
+@Get("/users/:id", of: User.self)
 struct GetUserRequest {
     @Path
     var id: String
@@ -68,7 +68,7 @@ let request = GetUserRequest(
     id: "123"
     includePosts: true
 )
-let response: Response<User> = try await client.perform(request)
+let response = try await client.perform(request)
 let user = response.data
 ```
 
@@ -78,12 +78,12 @@ Requests define the API endpoints and parameters. They're reusable across all en
 
 ### Methods
 
-NetworkKit comes with several macros to simplify and streamline request declaration.
+NetworkKit comes with several macros to simplify and streamline request declaration. You can specify the expected response type as the second argument of the macro, for example: `@Get("/users/:id", of: User.self)`. This allows NetworkKit to automatically decode the response into the provided type.
 
 #### GET
 
 ```swift
-@Get("/users")
+@Get("/users", of: [User].self)
 struct GetUsersRequest {
     @Query
     var page: Int
@@ -105,7 +105,7 @@ GET https://api.example.com/users?page=1&limit=20
 #### POST
 
 ```swift
-@Post("/users")
+@Post("/users", of: User.self)
 struct CreateUserRequest {
     @Body
     struct Body: HttpBody {
@@ -133,7 +133,7 @@ Content-Type: application/json
 #### PUT
 
 ```swift
-@Put("/users/:id")
+@Put("/users/:id", of: User.self)
 struct UpdateUserRequest {
     @Path
     var id: String
@@ -183,7 +183,7 @@ DELETE https://api.example.com/users/123
 #### PATCH
 
 ```swift
-@Patch("/users/:id")
+@Patch("/users/:id", of: User.self)
 struct PatchUserRequest {
     @Path
     var id: String
@@ -213,7 +213,7 @@ Content-Type: application/json
 #### HEAD
 
 ```swift
-@Head("/users/:id")
+@Head("/users/:id", of: User.self)
 struct CheckUserRequest {
     @Path
     var id: String
@@ -292,7 +292,7 @@ TRACE https://api.example.com/debug
 Use `@Path` for URL path parameters. These are replaced in the URL path at runtime:
 
 ```swift
-@Get("/users/:id/posts/:postId")
+@Get("/users/:id/posts/:postId", of: Post.self)
 struct GetPostRequest {
     @Path
     var id: String
@@ -318,7 +318,7 @@ GET https://api.example.com/users/123/posts/456
 Use `@Query` for URL query parameters. These are automatically added to the URL:
 
 ```swift
-@Get("/search")
+@Get("/search", of: [SearchResult].self)
 struct SearchRequest {
     @Query
     var query: String
@@ -343,7 +343,7 @@ GET https://api.example.com/search?query=swift&page=1&limit=20
 You can also provide the name of the query parameter explicitly:
 
 ```swift
-@Get("/search")
+@Get("/search", of: [SearchResult].self)
 struct SearchRequest {
     @Query("q")
     var query: String
@@ -372,7 +372,7 @@ The `HttpBody` protocol defines how your data should be serialized for HTTP requ
 For `Encodable` types, NetworkKit automatically serializes the body as JSON. You can use the `@Body` macro to define your request body:
 
 ```swift
-@Post("/users")
+@Post("/users", of: User.self)
 struct CreateUserRequest {
     @Body
     struct Body {
@@ -428,18 +428,22 @@ NetworkKit supports multipart form data for file uploads. You can mix files and 
 ```swift
 @Post("/upload")
 struct UploadRequest {
-    let body: MultipartForm
-    
-    init(imageData: Data, description: String) {
-        self.body = MultipartForm {
+    let imageData: Data
+    let description: String
+
+    var body: some HttpBody {
+       MultipartForm {
             DataField(
                 "file",
                 data: imageData,
                 mimeType: .jpegImage,
                 fileName: "photo.jpg"
             )
-            TextField("description", value: description)
-        }
+            TextField(
+                "description", 
+                value: description
+            )
+        } 
     }
 }
 ```

@@ -58,6 +58,11 @@ public protocol HttpRequest {
     /// The type of the request body, which must conform to `HttpBody`
     associatedtype Body: HttpBody
 
+    /// The type of the response expected from this request.
+    ///
+    /// This type must conform to `Decodable`.
+    associatedtype Response: Decodable
+
     /// The path component of the URL for this request.
     ///
     /// This should be a relative path that will be appended to the base URL

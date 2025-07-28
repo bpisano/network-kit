@@ -20,7 +20,9 @@ final class ConnectMacroTests: XCTestCase {
             """,
             expandedSource: """
                 struct ConnectBook {
-
+                
+                    typealias Response = Empty
+                
                     let path: String = "/books"
 
                     let method: HttpMethod = .connect
@@ -50,6 +52,8 @@ final class ConnectMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct ConnectBook {
+                
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -87,6 +91,8 @@ final class ConnectMacroTests: XCTestCase {
                     var _queryTimeout: QueryParameter {
                         QueryParameter(key: "timeout", value: timeout)
                     }
+                
+                    typealias Response = Empty
 
                     let path: String = "/books"
 
@@ -125,6 +131,8 @@ final class ConnectMacroTests: XCTestCase {
                         QueryParameter(key: "timeout", value: timeout)
                     }
 
+                    typealias Response = Empty
+                
                     public let path: String = "/books"
 
                     public let method: HttpMethod = .connect
@@ -162,6 +170,8 @@ final class ConnectMacroTests: XCTestCase {
                     struct ConnectOptions {
                         let tunnelHost: String
                     }
+                
+                    typealias Response = Empty
 
                     let path: String = "/books"
 
@@ -194,7 +204,9 @@ final class ConnectMacroTests: XCTestCase {
             expandedSource: """
                 struct ConnectBook {
                     let body: String = "existing body"
-
+                
+                    typealias Response = Empty
+                
                     let path: String = "/books"
 
                     let method: HttpMethod = .connect
@@ -207,6 +219,70 @@ final class ConnectMacroTests: XCTestCase {
                 }
 
                 extension ConnectBook: HttpRequest {
+                }
+                """,
+            macros: ["Connect": ConnectMacro.self]
+        )
+    }
+
+    func testConnectMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Connect("/proxy", of: ConnectResponse.self)
+            struct ConnectProxy {
+            }
+            """,
+            expandedSource: """
+                struct ConnectProxy {
+
+                    typealias Response = ConnectResponse
+
+                    let path: String = "/proxy"
+
+                    let method: HttpMethod = .connect
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension ConnectProxy: HttpRequest {
+                }
+                """,
+            macros: ["Connect": ConnectMacro.self]
+        )
+    }
+
+    func testConnectMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Connect("/proxy", of: [ConnectResponse].self)
+            public struct ConnectProxy {
+                let body: ConnectOptions
+            }
+            """,
+            expandedSource: """
+                public struct ConnectProxy {
+                    let body: ConnectOptions
+                
+                    typealias Response = [ConnectResponse]
+                
+                    public let path: String = "/proxy"
+
+                    public let method: HttpMethod = .connect
+
+                    public var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension ConnectProxy: HttpRequest {
                 }
                 """,
             macros: ["Connect": ConnectMacro.self]

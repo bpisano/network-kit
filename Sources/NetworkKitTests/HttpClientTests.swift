@@ -16,7 +16,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithPathParameter() async throws {
         let request = GetProductRequest(id: "1")
-        let response: Response<Product> = try await client.perform(request)
+        let response = try await client.perform(request)
         let product: Product = response.data
 
         #expect(product.id == 1)
@@ -27,7 +27,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithQueryParameters() async throws {
         let request = GetProductsRequest(limit: 3)
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         #expect(productList.products.count == 3)
@@ -37,7 +37,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithNoParameters() async throws {
         let request = GetAllProductsRequest()
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         #expect(productList.products.count == 30)  // Default limit
@@ -55,7 +55,7 @@ struct HttpClientTests {
                 category: "electronics"
             )
         )
-        let response: Response<Product> = try await client.perform(newProduct)
+        let response = try await client.perform(newProduct)
         let product: Product = response.data
 
         #expect(product.id > 0)  // DummyJSON returns a new ID
@@ -76,7 +76,7 @@ struct HttpClientTests {
                 category: "electronics"
             )
         )
-        let response: Response<Product> = try await client.perform(updateProduct)
+        let response = try await client.perform(updateProduct)
         let product: Product = response.data
 
         #expect(product.id == 1)
@@ -89,7 +89,7 @@ struct HttpClientTests {
     @Test
     func testDeleteRequestWithPathParameter() async throws {
         let request = DeleteProductRequest(id: "1")
-        let response: Response<Product> = try await client.perform(request)
+        let response = try await client.perform(request)
         let product: Product = response.data
 
         // DummyJSON returns the deleted product
@@ -100,7 +100,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithMixedPathAndQueryParameters() async throws {
         let request = GetProductsByCategoryRequest(category: "smartphones", limit: 5)
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         #expect(productList.products.count == 5)
@@ -110,7 +110,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithSpecialCharactersInQuery() async throws {
         let request = SearchProductsRequest(q: "phone")
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         // DummyJSON should return products matching "phone"
@@ -121,7 +121,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithNumericQueryParameters() async throws {
         let request = GetProductsWithPaginationRequest(skip: 10, limit: 10)
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         #expect(productList.products.count == 10)
@@ -132,7 +132,7 @@ struct HttpClientTests {
     @Test
     func testGetRequestWithBooleanQueryParameters() async throws {
         let request = GetProductsWithFiltersRequest(select: "title,price,category")
-        let response: Response<ProductList> = try await client.perform(request)
+        let response = try await client.perform(request)
         let productList: ProductList = response.data
 
         // DummyJSON should return products with only selected fields
@@ -154,7 +154,7 @@ struct HttpClientTests {
     @Test
     func testVoidResponse() async throws {
         let request = DeleteProductRequest(id: "1")
-        let response: EmptyResponse = try await client.perform(request)
+        let response = try await client.perform(request)
 
         // Should complete without throwing and return the deleted product
         #expect(response.statusCode == 200)
@@ -167,7 +167,7 @@ struct HttpClientTests {
         customClient.decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         let request = GetProductRequest(id: "1")
-        let response: Response<Product> = try await customClient.perform(request)
+        let response = try await customClient.perform(request)
         let product: Product = response.data
 
         #expect(product.id == 1)
@@ -176,23 +176,23 @@ struct HttpClientTests {
 
 // MARK: - Request Types
 
-@Get("/products/:id")
+@Get("/products/:id", of: Product.self)
 private struct GetProductRequest {
     @Path
     var id: String
 }
 
-@Get("/products")
+@Get("/products", of: ProductList.self)
 private struct GetAllProductsRequest {
 }
 
-@Get("/products")
+@Get("/products", of: ProductList.self)
 private struct GetProductsRequest {
     @Query
     var limit: Int
 }
 
-@Get("/products/category/:category")
+@Get("/products/category/:category", of: ProductList.self)
 private struct GetProductsByCategoryRequest {
     @Path
     var category: String
@@ -201,13 +201,13 @@ private struct GetProductsByCategoryRequest {
     var limit: Int
 }
 
-@Get("/products/search")
+@Get("/products/search", of: ProductList.self)
 private struct SearchProductsRequest {
     @Query
     var q: String
 }
 
-@Get("/products")
+@Get("/products", of: ProductList.self)
 private struct GetProductsWithPaginationRequest {
     @Query
     var skip: Int
@@ -216,13 +216,13 @@ private struct GetProductsWithPaginationRequest {
     var limit: Int
 }
 
-@Get("/products")
+@Get("/products", of: ProductList.self)
 private struct GetProductsWithFiltersRequest {
     @Query
     var select: String
 }
 
-@Post("/products/add")
+@Post("/products/add", of: Product.self)
 private struct CreateProductRequest {
     @Body
     struct Body {
@@ -233,7 +233,7 @@ private struct CreateProductRequest {
     }
 }
 
-@Put("/products/:id")
+@Put("/products/:id", of: Product.self)
 private struct UpdateProductRequest {
     @Path
     var id: String
@@ -247,7 +247,7 @@ private struct UpdateProductRequest {
     }
 }
 
-@Delete("/products/:id")
+@Delete("/products/:id", of: Product.self)
 private struct DeleteProductRequest {
     @Path
     var id: String

@@ -21,8 +21,10 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
 
-        // Extract the path argument from the @Get macro
-        guard let path = extractPathArgument(from: node, context: context, declaration: declaration)
+        // Extract the path and response type arguments from the @Get macro
+        guard
+            let (path, responseType) = extractArguments(
+                from: node, context: context, declaration: declaration)
         else {
             return []
         }
@@ -42,6 +44,7 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
         // Generate the required declarations
         return generateDeclarations(
             path: path,
+            responseType: responseType,
             accessModifier: accessModifier,
             queryIdentifiers: queryIdentifiers,
             bodyType: bodyType,
@@ -64,16 +67,27 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
 
     // MARK: - Helper Methods
 
-    /// Extracts the path argument from the @Get macro attribute
-    private static func extractPathArgument(
+    /// Extracts the path and response type arguments from the @Get macro attribute
+    private static func extractArguments(
         from node: AttributeSyntax,
         context: some MacroExpansionContext,
         declaration: some DeclGroupSyntax
-    ) -> String? {
-        guard
-            let argument = node.arguments?.as(LabeledExprListSyntax.self)?.first?.expression.as(
-                StringLiteralExprSyntax.self),
-            let path = argument.segments.first?.description.trimmingCharacters(
+    ) -> (path: String, responseType: String?)? {
+        guard let arguments = node.arguments?.as(LabeledExprListSyntax.self) else {
+            context.diagnose(
+                .init(
+                    node: declaration,
+                    message: MacroExpansionErrorMessage(
+                        "@Get requires a string literal path argument")
+                )
+            )
+            return nil
+        }
+
+        // Extract path (first argument)
+        guard let firstArg = arguments.first,
+            let pathExpr = firstArg.expression.as(StringLiteralExprSyntax.self),
+            let path = pathExpr.segments.first?.description.trimmingCharacters(
                 in: .init(charactersIn: "\""))
         else {
             context.diagnose(
@@ -85,7 +99,25 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
             )
             return nil
         }
-        return path
+
+        // Extract response type (second argument, labeled with "of:")
+        var responseType: String? = nil
+        if arguments.count > 1 {
+            for argument in arguments.dropFirst() {
+                if let label = argument.label, label.text == "of" {
+                    // Handle member access expressions like [User].self
+                    if let memberAccess = argument.expression.as(MemberAccessExprSyntax.self),
+                        let base = memberAccess.base
+                    {
+                        responseType = base.description.trimmingCharacters(
+                            in: .whitespacesAndNewlines)
+                    }
+                    break
+                }
+            }
+        }
+
+        return (path: path, responseType: responseType)
     }
 
     /// Determines the access modifier based on the declaration modifiers
@@ -164,11 +196,24 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
     /// Generates the required declarations for the HTTP request
     private static func generateDeclarations(
         path: String,
+        responseType: String?,
         accessModifier: String,
         queryIdentifiers: [String],
         bodyType: String?,
         hasExistingBody: Bool
     ) -> [DeclSyntax] {
+        var declarations: [DeclSyntax] = []
+
+        // Add response type alias if provided
+        if let responseType = responseType {
+            let typealiasDecl = DeclSyntax(stringLiteral: "typealias Response = \(responseType)")
+            declarations.append(typealiasDecl)
+        } else {
+            // Default to EmptyResponse if no response type is specified
+            let typealiasDecl = DeclSyntax(stringLiteral: "typealias Response = Empty")
+            declarations.append(typealiasDecl)
+        }
+
         let pathDecl = DeclSyntax(stringLiteral: "\(accessModifier)let path: String = \"\(path)\"")
         let methodDecl = DeclSyntax(stringLiteral: "\(accessModifier)let method: HttpMethod = .get")
         let queryParametersDecl = generateQueryParametersDeclaration(
@@ -176,7 +221,7 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
             queryIdentifiers: queryIdentifiers
         )
 
-        var declarations: [DeclSyntax] = [pathDecl, methodDecl, queryParametersDecl]
+        declarations.append(contentsOf: [pathDecl, methodDecl, queryParametersDecl])
 
         // Add body property if there's a body type
         if let bodyType = bodyType {

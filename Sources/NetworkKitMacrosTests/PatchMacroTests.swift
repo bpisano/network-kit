@@ -21,6 +21,8 @@ final class PatchMacroTests: XCTestCase {
             expandedSource: """
                 struct PartialUpdateBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .patch
@@ -50,6 +52,8 @@ final class PatchMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct PartialUpdateBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -88,6 +92,8 @@ final class PatchMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .patch
@@ -124,6 +130,8 @@ final class PatchMacroTests: XCTestCase {
                     var _queryForce: QueryParameter {
                         QueryParameter(key: "force", value: force)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -163,6 +171,8 @@ final class PatchMacroTests: XCTestCase {
                         let name: String?
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .patch
@@ -195,11 +205,77 @@ final class PatchMacroTests: XCTestCase {
                 struct PartialUpdateBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .patch
 
                     var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension PartialUpdateBook: HttpRequest {
+                }
+                """,
+            macros: ["Patch": PatchMacro.self]
+        )
+    }
+
+    func testPatchMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Patch("/books/:id", of: Book.self)
+            struct PartialUpdateBook {
+            }
+            """,
+            expandedSource: """
+                struct PartialUpdateBook {
+
+                    typealias Response = Book
+
+                    let path: String = "/books/:id"
+
+                    let method: HttpMethod = .patch
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension PartialUpdateBook: HttpRequest {
+                }
+                """,
+            macros: ["Patch": PatchMacro.self]
+        )
+    }
+
+    func testPatchMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Patch("/books/:id", of: Book.self)
+            public struct PartialUpdateBook {
+                let body: PatchRequest
+            }
+            """,
+            expandedSource: """
+                public struct PartialUpdateBook {
+                    let body: PatchRequest
+
+                    typealias Response = Book
+
+                    public let path: String = "/books/:id"
+
+                    public let method: HttpMethod = .patch
+
+                    public var queryParameters: [QueryParameter] {
                         [
 
                         ]

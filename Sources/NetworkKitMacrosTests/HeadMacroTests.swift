@@ -21,6 +21,8 @@ final class HeadMacroTests: XCTestCase {
             expandedSource: """
                 struct HeadBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .head
@@ -50,6 +52,8 @@ final class HeadMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct HeadBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -88,6 +92,8 @@ final class HeadMacroTests: XCTestCase {
                         QueryParameter(key: "includeMetadata", value: includeMetadata)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .head
@@ -124,6 +130,8 @@ final class HeadMacroTests: XCTestCase {
                     var _queryIncludeMetadata: QueryParameter {
                         QueryParameter(key: "includeMetadata", value: includeMetadata)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -163,6 +171,8 @@ final class HeadMacroTests: XCTestCase {
                         let includeDeleted: Bool
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .head
@@ -195,6 +205,8 @@ final class HeadMacroTests: XCTestCase {
                 struct HeadBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .head
@@ -204,6 +216,38 @@ final class HeadMacroTests: XCTestCase {
 
                         ]
                     }
+                }
+
+                extension HeadBook: HttpRequest {
+                }
+                """,
+            macros: ["Head": HeadMacro.self]
+        )
+    }
+
+    func testHeadMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Head("/books/:id", of: HeadResponse.self)
+            struct HeadBook {
+            }
+            """,
+            expandedSource: """
+                struct HeadBook {
+
+                    typealias Response = HeadResponse
+
+                    let path: String = "/books/:id"
+
+                    let method: HttpMethod = .head
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
                 }
 
                 extension HeadBook: HttpRequest {

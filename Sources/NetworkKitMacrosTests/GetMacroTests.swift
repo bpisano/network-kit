@@ -21,6 +21,8 @@ final class GetMacroTests: XCTestCase {
             expandedSource: """
                 struct GetBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .get
@@ -50,6 +52,8 @@ final class GetMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct GetBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -97,6 +101,8 @@ final class GetMacroTests: XCTestCase {
                         QueryParameter(key: "page_size", value: pageSize)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .get
@@ -107,7 +113,7 @@ final class GetMacroTests: XCTestCase {
                             _queryPageSize
                         ]
                     }
-                
+
                     let body = EmptyBody()
                 }
 
@@ -135,6 +141,8 @@ final class GetMacroTests: XCTestCase {
                         QueryParameter(key: "search", value: search)
                     }
 
+                    typealias Response = Empty
+
                     public let path: String = "/books"
 
                     public let method: HttpMethod = .get
@@ -144,7 +152,7 @@ final class GetMacroTests: XCTestCase {
                             _querySearch
                         ]
                     }
-                
+
                     public let body = EmptyBody()
                 }
 
@@ -172,6 +180,8 @@ final class GetMacroTests: XCTestCase {
                     struct BookFilter {
                         let category: String
                     }
+
+                    typealias Response = Empty
 
                     let path: String = "/books"
 
@@ -205,6 +215,8 @@ final class GetMacroTests: XCTestCase {
                 struct GetBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .get
@@ -220,6 +232,119 @@ final class GetMacroTests: XCTestCase {
                 }
                 """,
             macros: ["Get": GetMacro.self]
+        )
+    }
+
+    func testGetMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Get("/users", of: [User].self)
+            struct GetUsers {
+            }
+            """,
+            expandedSource: """
+                struct GetUsers {
+
+                    typealias Response = [User]
+
+                    let path: String = "/users"
+
+                    let method: HttpMethod = .get
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension GetUsers: HttpRequest {
+                }
+                """,
+            macros: ["Get": GetMacro.self]
+        )
+    }
+
+    func testGetMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Get("/users", of: User.self)
+            public struct GetUser {
+            }
+            """,
+            expandedSource: """
+                public struct GetUser {
+
+                    typealias Response = User
+
+                    public let path: String = "/users"
+
+                    public let method: HttpMethod = .get
+
+                    public var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    public let body = EmptyBody()
+                }
+
+                extension GetUser: HttpRequest {
+                }
+                """,
+            macros: ["Get": GetMacro.self]
+        )
+    }
+
+    func testGetMacroWithResponseTypeAndQueryProperties() {
+        assertMacroExpansion(
+            """
+            @Get("/books", of: [Book].self)
+            struct GetBooks {
+                @Query
+                var search: String
+                
+                @Query("page_size")
+                var pageSize: String
+            }
+            """,
+            expandedSource: """
+                struct GetBooks {
+                    var search: String
+
+                    var _querySearch: QueryParameter {
+                        QueryParameter(key: "search", value: search)
+                    }
+
+                    var pageSize: String
+
+                    var _queryPageSize: QueryParameter {
+                        QueryParameter(key: "page_size", value: pageSize)
+                    }
+
+                    typealias Response = [Book]
+
+                    let path: String = "/books"
+
+                    let method: HttpMethod = .get
+
+                    var queryParameters: [QueryParameter] {
+                        [
+                            _querySearch,
+                            _queryPageSize
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension GetBooks: HttpRequest {
+                }
+                """,
+            macros: ["Get": GetMacro.self, "Query": QueryMacro.self]
         )
     }
 }

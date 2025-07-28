@@ -21,6 +21,8 @@ final class DeleteMacroTests: XCTestCase {
             expandedSource: """
                 struct DeleteBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .delete
@@ -50,6 +52,8 @@ final class DeleteMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct DeleteBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -88,6 +92,8 @@ final class DeleteMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .delete
@@ -124,6 +130,8 @@ final class DeleteMacroTests: XCTestCase {
                     var _queryForce: QueryParameter {
                         QueryParameter(key: "force", value: force)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -163,6 +171,8 @@ final class DeleteMacroTests: XCTestCase {
                         let force: Bool
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .delete
@@ -195,6 +205,8 @@ final class DeleteMacroTests: XCTestCase {
                 struct DeleteBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books/1"
 
                     let method: HttpMethod = .delete
@@ -207,6 +219,70 @@ final class DeleteMacroTests: XCTestCase {
                 }
 
                 extension DeleteBook: HttpRequest {
+                }
+                """,
+            macros: ["Delete": DeleteMacro.self]
+        )
+    }
+
+    func testDeleteMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Delete("/books/:id", of: DeleteResponse.self)
+            struct DeleteBook {
+            }
+            """,
+            expandedSource: """
+                struct DeleteBook {
+
+                    typealias Response = DeleteResponse
+
+                    let path: String = "/books/:id"
+
+                    let method: HttpMethod = .delete
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension DeleteBook: HttpRequest {
+                }
+                """,
+            macros: ["Delete": DeleteMacro.self]
+        )
+    }
+
+    func testDeleteMacroWithResponseTypeOnly() {
+        assertMacroExpansion(
+            """
+            @Delete("/books", of: [DeleteResponse].self)
+            struct DeleteAllBooks {
+            }
+            """,
+            expandedSource: """
+                struct DeleteAllBooks {
+
+                    typealias Response = [DeleteResponse]
+
+                    let path: String = "/books"
+
+                    let method: HttpMethod = .delete
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension DeleteAllBooks: HttpRequest {
                 }
                 """,
             macros: ["Delete": DeleteMacro.self]

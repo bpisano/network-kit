@@ -21,6 +21,8 @@ final class TraceMacroTests: XCTestCase {
             expandedSource: """
                 struct TraceBook {
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .trace
@@ -50,6 +52,8 @@ final class TraceMacroTests: XCTestCase {
             """,
             expandedSource: """
                 public struct TraceBook {
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -88,6 +92,8 @@ final class TraceMacroTests: XCTestCase {
                         QueryParameter(key: "maxHops", value: maxHops)
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .trace
@@ -124,6 +130,8 @@ final class TraceMacroTests: XCTestCase {
                     var _queryMaxHops: QueryParameter {
                         QueryParameter(key: "maxHops", value: maxHops)
                     }
+
+                    typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -163,6 +171,8 @@ final class TraceMacroTests: XCTestCase {
                         let includeHeaders: Bool
                     }
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .trace
@@ -195,6 +205,8 @@ final class TraceMacroTests: XCTestCase {
                 struct TraceBook {
                     let body: String = "existing body"
 
+                    typealias Response = Empty
+
                     let path: String = "/books"
 
                     let method: HttpMethod = .trace
@@ -207,6 +219,70 @@ final class TraceMacroTests: XCTestCase {
                 }
 
                 extension TraceBook: HttpRequest {
+                }
+                """,
+            macros: ["Trace": TraceMacro.self]
+        )
+    }
+
+    func testTraceMacroWithResponseType() {
+        assertMacroExpansion(
+            """
+            @Trace("/debug/trace", of: TraceResponse.self)
+            struct DebugTrace {
+            }
+            """,
+            expandedSource: """
+                struct DebugTrace {
+
+                    typealias Response = TraceResponse
+
+                    let path: String = "/debug/trace"
+
+                    let method: HttpMethod = .trace
+
+                    var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+
+                    let body = EmptyBody()
+                }
+
+                extension DebugTrace: HttpRequest {
+                }
+                """,
+            macros: ["Trace": TraceMacro.self]
+        )
+    }
+
+    func testTraceMacroWithResponseTypeAndPublicStruct() {
+        assertMacroExpansion(
+            """
+            @Trace("/debug/trace", of: [TraceResponse].self)
+            public struct DebugTrace {
+                let body: TraceOptions
+            }
+            """,
+            expandedSource: """
+                public struct DebugTrace {
+                    let body: TraceOptions
+
+                    typealias Response = [TraceResponse]
+
+                    public let path: String = "/debug/trace"
+
+                    public let method: HttpMethod = .trace
+
+                    public var queryParameters: [QueryParameter] {
+                        [
+
+                        ]
+                    }
+                }
+
+                extension DebugTrace: HttpRequest {
                 }
                 """,
             macros: ["Trace": TraceMacro.self]

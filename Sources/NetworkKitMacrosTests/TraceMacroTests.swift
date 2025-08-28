@@ -53,7 +53,7 @@ final class TraceMacroTests: XCTestCase {
             expandedSource: """
                 public struct TraceBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -131,7 +131,7 @@ final class TraceMacroTests: XCTestCase {
                         QueryParameter(key: "maxHops", value: maxHops)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -269,7 +269,7 @@ final class TraceMacroTests: XCTestCase {
                 public struct DebugTrace {
                     let body: TraceOptions
 
-                    typealias Response = [TraceResponse]
+                    public typealias Response = [TraceResponse]
 
                     public let path: String = "/debug/trace"
 

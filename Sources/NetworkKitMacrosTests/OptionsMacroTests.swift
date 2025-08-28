@@ -53,7 +53,7 @@ final class OptionsMacroTests: XCTestCase {
             expandedSource: """
                 public struct OptionsBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -131,7 +131,7 @@ final class OptionsMacroTests: XCTestCase {
                         QueryParameter(key: "includeHidden", value: includeHidden)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -269,7 +269,7 @@ final class OptionsMacroTests: XCTestCase {
                 public struct ApiConfig {
                     let body: OptionsData
 
-                    typealias Response = [String]
+                    public typealias Response = [String]
 
                     public let path: String = "/api/config"
 

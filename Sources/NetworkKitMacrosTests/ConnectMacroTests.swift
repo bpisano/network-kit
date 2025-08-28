@@ -53,7 +53,7 @@ final class ConnectMacroTests: XCTestCase {
             expandedSource: """
                 public struct ConnectBook {
                 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -131,7 +131,7 @@ final class ConnectMacroTests: XCTestCase {
                         QueryParameter(key: "timeout", value: timeout)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
                 
                     public let path: String = "/books"
 
@@ -269,7 +269,7 @@ final class ConnectMacroTests: XCTestCase {
                 public struct ConnectProxy {
                     let body: ConnectOptions
                 
-                    typealias Response = [ConnectResponse]
+                    public typealias Response = [ConnectResponse]
                 
                     public let path: String = "/proxy"
 

@@ -53,7 +53,7 @@ final class PostMacroTests: XCTestCase {
             expandedSource: """
                 public struct CreateBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -131,7 +131,7 @@ final class PostMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -267,7 +267,7 @@ final class PostMacroTests: XCTestCase {
             expandedSource: """
                 public struct CreateBooks {
 
-                    typealias Response = [Book]
+                    public typealias Response = [Book]
 
                     public let path: String = "/books"
 

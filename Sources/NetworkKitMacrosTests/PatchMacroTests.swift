@@ -53,7 +53,7 @@ final class PatchMacroTests: XCTestCase {
             expandedSource: """
                 public struct PartialUpdateBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -131,7 +131,7 @@ final class PatchMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -269,7 +269,7 @@ final class PatchMacroTests: XCTestCase {
                 public struct PartialUpdateBook {
                     let body: PatchRequest
 
-                    typealias Response = Book
+                    public typealias Response = Book
 
                     public let path: String = "/books/:id"
 

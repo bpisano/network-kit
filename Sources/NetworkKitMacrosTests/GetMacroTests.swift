@@ -53,7 +53,7 @@ final class GetMacroTests: XCTestCase {
             expandedSource: """
                 public struct GetBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -141,7 +141,7 @@ final class GetMacroTests: XCTestCase {
                         QueryParameter(key: "search", value: search)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -277,7 +277,7 @@ final class GetMacroTests: XCTestCase {
             expandedSource: """
                 public struct GetUser {
 
-                    typealias Response = User
+                    public typealias Response = User
 
                     public let path: String = "/users"
 

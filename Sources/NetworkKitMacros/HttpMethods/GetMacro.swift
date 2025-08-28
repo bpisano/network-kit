@@ -206,11 +206,13 @@ public struct GetMacro: MemberMacro, ExtensionMacro {
 
         // Add response type alias if provided
         if let responseType = responseType {
-            let typealiasDecl = DeclSyntax(stringLiteral: "typealias Response = \(responseType)")
+            let typealiasDecl = DeclSyntax(
+                stringLiteral: "\(accessModifier)typealias Response = \(responseType)")
             declarations.append(typealiasDecl)
         } else {
             // Default to EmptyResponse if no response type is specified
-            let typealiasDecl = DeclSyntax(stringLiteral: "typealias Response = Empty")
+            let typealiasDecl = DeclSyntax(
+                stringLiteral: "\(accessModifier)typealias Response = Empty")
             declarations.append(typealiasDecl)
         }
 

@@ -53,7 +53,7 @@ final class HeadMacroTests: XCTestCase {
             expandedSource: """
                 public struct HeadBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 
@@ -131,7 +131,7 @@ final class HeadMacroTests: XCTestCase {
                         QueryParameter(key: "includeMetadata", value: includeMetadata)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books"
 

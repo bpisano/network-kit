@@ -53,7 +53,7 @@ final class PutMacroTests: XCTestCase {
             expandedSource: """
                 public struct UpdateBook {
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books/1"
 
@@ -131,7 +131,7 @@ final class PutMacroTests: XCTestCase {
                         QueryParameter(key: "force", value: force)
                     }
 
-                    typealias Response = Empty
+                    public typealias Response = Empty
 
                     public let path: String = "/books/1"
 
